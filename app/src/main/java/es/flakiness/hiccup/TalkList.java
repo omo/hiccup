@@ -11,12 +11,16 @@ import android.widget.ListAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class TalkList implements ListAdapter {
 
+    TalkStore store;
     DataSetObservable observable = new DataSetObservable();
     List<TalkPreso> presoList = new ArrayList();
 
-    public TalkList() {
+    @Inject public TalkList(TalkStore store) {
+        this.store = store;
         presoList.add(new TalkPreso());
     }
 

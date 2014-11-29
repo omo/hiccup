@@ -9,15 +9,13 @@ import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 
+import javax.inject.Inject;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 public class IndexView extends FrameLayout {
-    @InjectView(R.id.card_list)
-    ListView cardList;
-
-    // TODO(morrita): Inject.
-    TalkStore store = new TalkStore();
+    @InjectView(R.id.card_list) ListView cardList;
 
     public IndexView(Context context) {
         this(context, null);
@@ -41,6 +39,6 @@ public class IndexView extends FrameLayout {
     private void initialize() {
         LayoutInflater.from(getContext()).inflate(R.layout.index_view, this);
         ButterKnife.inject(this);
-        cardList.setAdapter(new TalkList());
+        cardList.setAdapter(App.get(getContext().getApplicationContext(), TalkList.class));
     }
 }

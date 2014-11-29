@@ -6,17 +6,16 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.TextView;
 
+import javax.inject.Inject;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 public class TalkView extends CardView {
     private TalkPreso preso;
 
-    @InjectView(R.id.talk_title)
-    TextView title;
-
-    @InjectView(R.id.talk_duration)
-    TextView duration;
+    @InjectView(R.id.talk_title) TextView title;
+    @InjectView(R.id.talk_duration) TextView duration;
 
     public TalkView(Context context) {
         this(context, null);
