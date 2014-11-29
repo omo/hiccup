@@ -21,7 +21,7 @@ public class TalkList implements ListAdapter {
 
     @Inject public TalkList(TalkStore store) {
         this.store = store;
-        presoList.add(new TalkPreso());
+        presoList = toPresoList(store.list());
     }
 
     @Override
@@ -91,5 +91,12 @@ public class TalkList implements ListAdapter {
     @Override
     public boolean isEmpty() {
         return false;
+    }
+
+    public List<TalkPreso> toPresoList(List<Talk> entities) {
+        List<TalkPreso> result = new ArrayList();
+        for (Talk e : entities)
+            result.add(new TalkPreso(e));
+        return result;
     }
 }

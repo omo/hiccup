@@ -1,5 +1,7 @@
 package es.flakiness.hiccup;
 
+import javax.inject.Singleton;
+
 import dagger.Module;
 import dagger.Provides;
 import nl.qbusict.cupboard.CupboardFactory;
@@ -17,7 +19,7 @@ public class AppModule {
         this.databaseOpenHelper = new DatabaseOpenHelper(app);
     }
 
-    @Provides
+    @Provides @Singleton
     DatabaseCompartment provideDatabaseCompartment() {
         return CupboardFactory.cupboard().withDatabase(databaseOpenHelper.getWritableDatabase());
     }

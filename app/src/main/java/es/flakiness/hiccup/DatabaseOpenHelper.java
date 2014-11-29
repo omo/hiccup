@@ -7,7 +7,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 import nl.qbusict.cupboard.CupboardFactory;
 
 public class DatabaseOpenHelper extends SQLiteOpenHelper {
-    public static int VERSION = 1;
+    static {
+        CupboardFactory.cupboard().register(Talk.class);
+    }
+
+    public static int VERSION = 2;
     public static String NAME = "main";
 
     public DatabaseOpenHelper(Context context) {
