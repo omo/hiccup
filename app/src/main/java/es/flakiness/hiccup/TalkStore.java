@@ -17,8 +17,12 @@ public class TalkStore {
     }
 
     public void putDebugInstance() {
-        Talk t = new Talk(null, "uri://debug/", "Hello Debug Talk!", new Date(0));
+        Talk t = new Talk(null, "uri://debug/", "Hello Debug Talk!", new Long(0));
         database.put(t);
+    }
+
+    public void put(Talk talk) {
+        database.put(talk);
     }
 
     public void clear() {

@@ -1,17 +1,25 @@
 package es.flakiness.hiccup;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.squareup.otto.Bus;
+
+import javax.inject.Inject;
+
 
 public class MainActivity extends Activity {
+
+    @Inject Bus bus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        App.inject(getApplicationContext(), this);
     }
 
     @Override
@@ -21,14 +29,30 @@ public class MainActivity extends Activity {
         return true;
     }
 
+    private void requestAddTalk() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType("audio/*");
+        startActivityForResult(intent, 1);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            bus.post(new AddTalkEvent(this, data.getData()));
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add_debug_item:
-                App.get(getApplicationContext(), TalkStore.class).putDebugInstance();
+                bus.post(new AddDebugTalkEvent());
                 return true;
             case R.id.action_clear_talk_list:
-                App.get(getApplicationContext(), TalkStore.class).clear();
+                bus.post(new ClearTalkEvent());
+                return true;
+            case R.id.action_add_talk:
+                requestAddTalk();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -2,6 +2,9 @@ package es.flakiness.hiccup;
 
 import android.net.Uri;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class TalkPreso {
     private Talk entity;
 
@@ -14,8 +17,7 @@ public class TalkPreso {
     }
 
     public String getDuration() {
-        // FIXME: Return appropriate value.
-        return "1 minute";
+        return new SimpleDateFormat("mm:ss").format(new Date(entity.duration.longValue()));
     }
 
     public TalkPreso(Talk entity) {

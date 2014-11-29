@@ -2,11 +2,15 @@ package es.flakiness.hiccup;
 
 import android.database.DataSetObservable;
 import android.database.DataSetObserver;
+import android.media.MediaMetadataRetriever;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ListAdapter;
+
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,12 +20,15 @@ import javax.inject.Inject;
 public class TalkList implements ListAdapter {
 
     TalkStore store;
+    Bus bus;
     DataSetObservable observable = new DataSetObservable();
     List<TalkPreso> presoList = new ArrayList();
 
-    @Inject public TalkList(TalkStore store) {
+    @Inject public TalkList(TalkStore store, Bus bus) {
         this.store = store;
-        presoList = toPresoList(store.list());
+        // TODO(omo): Should we unregister somehow?
+        bus.register(this);
+        notifyChanged();
     }
 
     @Override
@@ -93,10 +100,39 @@ public class TalkList implements ListAdapter {
         return false;
     }
 
-    public List<TalkPreso> toPresoList(List<Talk> entities) {
+    public static List<TalkPreso> toPresoList(List<Talk> entities) {
         List<TalkPreso> result = new ArrayList();
         for (Talk e : entities)
             result.add(new TalkPreso(e));
         return result;
     }
+
+    @Subscribe public void addDebugTalk(AddDebugTalkEvent event) {
+        // TODO(omo): Should go background.
+        store.putDebugInstance();
+        notifyChanged();
+    }
+
+    @Subscribe public void clearTalk(ClearTalkEvent event) {
+        // TODO(omo): Should go background.
+        store.clear();
+        notifyChanged();
+    }
+
+    @Subscribe public void addTalk(AddTalkEvent event) {
+        // TODO(omo): Should go background.
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        mmr.setDataSource(event.getContext(), event.getUri());
+        Talk talk = new Talk(null, event.getUri().toString(), mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE),
+                             Long.parseLong(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)));
+        store.put(talk);
+        notifyChanged();
+    }
+
+    private void notifyChanged() {
+        // TODO(omo): SHould go background.
+        presoList = toPresoList(store.list());
+        observable.notifyChanged();
+    }
+
 }
