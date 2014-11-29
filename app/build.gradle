@@ -24,6 +24,7 @@ dependencies {
     compile 'com.jakewharton:butterknife:6.0.0'
     compile 'io.reactivex:rxjava:1.0.0'
     compile 'io.reactivex:rxandroid:0.22.0'
+    compile 'org.ocpsoft.prettytime:prettytime:3.2.5+'
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }

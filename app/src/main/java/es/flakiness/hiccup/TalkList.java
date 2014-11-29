@@ -8,9 +8,17 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ListAdapter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TalkList implements ListAdapter {
 
     DataSetObservable observable = new DataSetObservable();
+    List<TalkPreso> presoList = new ArrayList();
+
+    public TalkList() {
+        presoList.add(new TalkPreso());
+    }
 
     @Override
     public boolean areAllItemsEnabled() {
@@ -34,17 +42,17 @@ public class TalkList implements ListAdapter {
 
     @Override
     public int getCount() {
-        return 1;
+        return presoList.size();
     }
 
     @Override
     public Object getItem(int i) {
-        return null;
+        return presoList.get(i);
     }
 
     @Override
     public long getItemId(int i) {
-        return 0;
+        return presoList.get(i).getId();
     }
 
     @Override
@@ -52,12 +60,15 @@ public class TalkList implements ListAdapter {
         return true;
     }
 
+
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        if (null != view) {
-            return view;
-        }
+        TalkView talkView = null == view ? createFreshView(viewGroup) : (TalkView)view;
+        talkView.setPreso(presoList.get(i));
+        return talkView;
+    }
 
+    private TalkView createFreshView(ViewGroup viewGroup) {
         TalkView talkView = new TalkView(viewGroup.getContext());
         talkView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         return talkView;

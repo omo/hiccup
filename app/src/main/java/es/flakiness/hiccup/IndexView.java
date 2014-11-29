@@ -16,6 +16,9 @@ public class IndexView extends FrameLayout {
     @InjectView(R.id.card_list)
     ListView cardList;
 
+    // TODO(morrita): Inject.
+    TalkStore store = new TalkStore();
+
     public IndexView(Context context) {
         this(context, null);
     }
