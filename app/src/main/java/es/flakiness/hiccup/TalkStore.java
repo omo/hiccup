@@ -30,6 +30,7 @@ public class TalkStore {
     }
 
     public List<Talk> list() {
+        // TODO(omo): Verify the URL and remove the entity if it has gone invalid.
         return database.query(Talk.class).list();
     }
 }

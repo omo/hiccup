@@ -1,8 +1,11 @@
 package es.flakiness.hiccup;
 
+import android.content.Intent;
 import android.database.DataSetObservable;
 import android.database.DataSetObserver;
 import android.media.MediaMetadataRetriever;
+import android.net.Uri;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,8 +29,9 @@ public class TalkList implements ListAdapter {
 
     @Inject public TalkList(TalkStore store, Bus bus) {
         this.store = store;
+        this.bus = bus;
         // TODO(omo): Should we unregister somehow?
-        bus.register(this);
+        this.bus.register(this);
         notifyChanged();
     }
 
@@ -123,6 +127,11 @@ public class TalkList implements ListAdapter {
         // TODO(omo): Should go background.
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         mmr.setDataSource(event.getContext(), event.getUri());
+
+        if (Build.VERSION.SDK_INT >= 19) {
+            event.getContext().getContentResolver().takePersistableUriPermission(event.getUri(), Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
+
         Talk talk = new Talk(null, event.getUri().toString(), mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE),
                              Long.parseLong(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)));
         store.put(talk);
@@ -135,4 +144,7 @@ public class TalkList implements ListAdapter {
         observable.notifyChanged();
     }
 
+    public void onClickAt(int i) {
+        bus.post(new PlayTalkEvent(presoList.get(i).getUri()));
+    }
 }

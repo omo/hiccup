@@ -6,5 +6,8 @@
     <string name="action_settings">Settings</string>
     <string name="clear_talks">Clear Talks</string>
     <string name="add_talk">Add Talk ...</string>
+    <string name="title_activity_play">PlayActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 
 </resources>

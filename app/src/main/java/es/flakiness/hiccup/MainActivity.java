@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import javax.inject.Inject;
 
@@ -20,6 +21,13 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         App.inject(getApplicationContext(), this);
+        bus.register(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        bus.unregister(this);
+        super.onDestroy();
     }
 
     @Override
@@ -38,7 +46,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1 && resultCode == RESULT_OK) {
-            bus.post(new AddTalkEvent(this, data.getData()));
+            bus.post(new AddTalkEvent(this.getApplicationContext(), data));
         }
     }
 
@@ -57,5 +65,11 @@ public class MainActivity extends Activity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Subscribe public void playTalk(PlayTalkEvent event) {
+        Intent intent = new Intent(this, PlayActivity.class);
+        intent.putExtra(PlayActivity.EXTRA_KEY, event.getUri());
+        startActivity(intent);
     }
 }

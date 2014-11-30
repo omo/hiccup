@@ -1,22 +1,28 @@
 package es.flakiness.hiccup;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 
 public class AddTalkEvent {
     private Context context;
-    private Uri uri;
+    private Intent intent;
 
-    public AddTalkEvent(Context context, Uri uri) {
+    public AddTalkEvent(Context context, Intent intent) {
         this.context = context;
-        this.uri = uri;
+        this.intent = intent;
     }
 
-    public Uri getUri() {
-        return uri;
-    }
 
     public Context getContext() {
         return context;
+    }
+
+    public Intent getIntent() {
+        return intent;
+    }
+
+    public Uri getUri() {
+        return intent.getData();
     }
 }

@@ -2,10 +2,11 @@ package es.flakiness.hiccup;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 
@@ -15,6 +16,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 public class IndexView extends FrameLayout {
+    @Inject TalkList talkList;
     @InjectView(R.id.card_list) ListView cardList;
 
     public IndexView(Context context) {
@@ -39,6 +41,13 @@ public class IndexView extends FrameLayout {
     private void initialize() {
         LayoutInflater.from(getContext()).inflate(R.layout.index_view, this);
         ButterKnife.inject(this);
-        cardList.setAdapter(App.get(getContext().getApplicationContext(), TalkList.class));
+        App.inject(getContext().getApplicationContext(), this);
+        cardList.setAdapter(talkList);
+        cardList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                talkList.onClickAt(i);
+            }
+        });
     }
 }
