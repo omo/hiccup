@@ -7,6 +7,7 @@ import android.net.Uri;
 import java.io.IOException;
 
 import rx.Observable;
+import rx.Subscription;
 import rx.functions.Action1;
 
 enum PlayerState {
@@ -22,6 +23,7 @@ public class Player {
     private final Uri uri;
     private boolean startRequested;
     private PlayerState state;
+    private Subscription gestureSubscription;
 
     public Player(Context context, Uri uri) throws IOException {
         this.uri = uri;
@@ -85,10 +87,11 @@ public class Player {
     public void onHostClose() {
         player.stop();
         player.release();
+        gestureSubscription.unsubscribe();
     }
 
     public void connectTo(Observable<GestureEvent> gestures) {
-        gestures.subscribe(new Action1<GestureEvent>() {
+        gestureSubscription = gestures.subscribe(new Action1<GestureEvent>() {
             @Override
             public void call(GestureEvent gestureEvent) {
                 switch (gestureEvent.getType()) {
