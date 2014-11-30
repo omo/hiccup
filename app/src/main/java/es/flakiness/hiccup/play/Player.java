@@ -6,11 +6,13 @@ import android.net.Uri;
 
 import java.io.IOException;
 
-public class TalkPlayer {
+public class Player {
     private final MediaPlayer player;
     private final Uri uri;
+    private boolean prepared;
+    private boolean startRequested;
 
-    public TalkPlayer(Context context, Uri uri) throws IOException {
+    public Player(Context context, Uri uri) throws IOException {
         this.uri = uri;
         this.player = new MediaPlayer();
         this.player.setDataSource(context, uri);
@@ -18,13 +20,24 @@ public class TalkPlayer {
         this.player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mediaPlayer) {
-                TalkPlayer.this.onPlayerPrepared();
+                Player.this.onPlayerPrepared();
             }
         });
     }
 
     public void onPlayerPrepared() {
-        player.start();
+        prepared = true;
+        startIfNeededAndPossible();
+    }
+
+    public void start() {
+        startRequested = true;
+        startIfNeededAndPossible();
+    }
+
+    private void startIfNeededAndPossible() {
+       if (startRequested && prepared)
+           player.start();
     }
 
     public void onHostClose() {

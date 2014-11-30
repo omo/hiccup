@@ -17,10 +17,18 @@ public class App extends Application {
     }
 
     public static void inject(Context appContext, Object object) {
-        ((App)appContext).graph.inject(object);
+        getGraph((App) appContext).inject(object);
     }
 
     public static <T> T get(Context appContext, Class<T> clazz) {
-        return ((App)appContext).graph.get(clazz);
+        return getGraph((App) appContext).get(clazz);
+    }
+
+    public static ObjectGraph plus(Context appContext, Object module) {
+        return getGraph((App) appContext).plus(module);
+    }
+
+    private static ObjectGraph getGraph(App appContext) {
+        return ((App)appContext).graph;
     }
 }

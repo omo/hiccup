@@ -9,9 +9,12 @@ import android.widget.FrameLayout;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
+
 public class PlayView extends FrameLayout {
 
-    private TalkPlayer player;
+    @Inject
+    Player player;
 
     public PlayView(Context context) {
         this(context, null);
@@ -37,12 +40,18 @@ public class PlayView extends FrameLayout {
     }
 
     public void setUri(Uri uri) throws IOException {
-        this.player = new TalkPlayer(getContext().getApplicationContext(), uri);
+        this.player = new Player(getContext().getApplicationContext(), uri);
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        player.start();
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        this.player.onHostClose();
+        player.onHostClose();
     }
 }
