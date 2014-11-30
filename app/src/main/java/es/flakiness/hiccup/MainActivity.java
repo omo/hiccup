@@ -11,6 +11,11 @@ import com.squareup.otto.Subscribe;
 
 import javax.inject.Inject;
 
+import es.flakiness.hiccup.play.PlayActivity;
+import es.flakiness.hiccup.talk.AddDebugTalkEvent;
+import es.flakiness.hiccup.talk.AddTalkEvent;
+import es.flakiness.hiccup.talk.ClearTalkEvent;
+
 
 public class MainActivity extends Activity {
 
@@ -67,7 +72,8 @@ public class MainActivity extends Activity {
         }
     }
 
-    @Subscribe public void playTalk(PlayTalkEvent event) {
+    @Subscribe
+    public void playTalk(PlayTalkEvent event) {
         Intent intent = new Intent(this, PlayActivity.class);
         intent.putExtra(PlayActivity.EXTRA_KEY, event.getUri());
         startActivity(intent);

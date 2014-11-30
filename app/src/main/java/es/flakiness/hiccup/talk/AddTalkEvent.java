@@ -1,4 +1,4 @@
-package es.flakiness.hiccup;
+package es.flakiness.hiccup.talk;
 
 import android.content.Context;
 import android.content.Intent;

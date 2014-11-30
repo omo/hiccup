@@ -1,12 +1,10 @@
-package es.flakiness.hiccup;
+package es.flakiness.hiccup.talk;
 
 import android.content.Intent;
 import android.database.DataSetObservable;
 import android.database.DataSetObserver;
 import android.media.MediaMetadataRetriever;
-import android.net.Uri;
 import android.os.Build;
-import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -19,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import es.flakiness.hiccup.PlayTalkEvent;
 
 public class TalkList implements ListAdapter {
 

@@ -18,7 +18,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="es.flakiness.hiccup.PlayActivity"
+            android:name=".play.PlayActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_play"
             android:theme="@style/FullscreenTheme" >

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import es.flakiness.hiccup.talk.Talk;
 import nl.qbusict.cupboard.CupboardFactory;
 
 public class DatabaseOpenHelper extends SQLiteOpenHelper {

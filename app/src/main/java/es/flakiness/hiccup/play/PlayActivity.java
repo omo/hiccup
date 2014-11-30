@@ -1,20 +1,15 @@
-package es.flakiness.hiccup;
+package es.flakiness.hiccup.play;
 
-import es.flakiness.hiccup.util.SystemUiHider;
-
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.view.MotionEvent;
-import android.view.View;
 import android.view.Window;
-import android.widget.Toast;
 
 import java.io.IOException;
+
+import es.flakiness.hiccup.R;
+import es.flakiness.hiccup.play.TalkPlayer;
 
 
 public class PlayActivity extends Activity {

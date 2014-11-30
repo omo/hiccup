@@ -1,4 +1,4 @@
-package es.flakiness.hiccup;
+package es.flakiness.hiccup.talk;
 
 import android.content.Context;
 import android.support.v7.widget.CardView;
@@ -6,10 +6,9 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.TextView;
 
-import javax.inject.Inject;
-
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import es.flakiness.hiccup.R;
 
 public class TalkView extends CardView {
     private TalkPreso preso;

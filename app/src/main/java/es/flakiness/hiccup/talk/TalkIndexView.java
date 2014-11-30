@@ -1,4 +1,4 @@
-package es.flakiness.hiccup;
+package es.flakiness.hiccup.talk;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -14,26 +14,29 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import es.flakiness.hiccup.App;
+import es.flakiness.hiccup.R;
 
-public class IndexView extends FrameLayout {
-    @Inject TalkList talkList;
+public class TalkIndexView extends FrameLayout {
+    @Inject
+    TalkList talkList;
     @InjectView(R.id.card_list) ListView cardList;
 
-    public IndexView(Context context) {
+    public TalkIndexView(Context context) {
         this(context, null);
     }
 
-    public IndexView(Context context, AttributeSet attrs) {
+    public TalkIndexView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public IndexView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public TalkIndexView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initialize();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public IndexView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public TalkIndexView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         initialize();
     }

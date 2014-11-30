@@ -6,11 +6,14 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import es.flakiness.hiccup.talk.TalkIndexView;
+import es.flakiness.hiccup.talk.TalkList;
+import es.flakiness.hiccup.talk.TalkStore;
 import nl.qbusict.cupboard.CupboardFactory;
 import nl.qbusict.cupboard.DatabaseCompartment;
 
 @Module(
-    injects = { TalkStore.class, TalkList.class, TalkStore.class, MainActivity.class, IndexView.class }
+    injects = { TalkStore.class, TalkList.class, TalkStore.class, MainActivity.class, TalkIndexView.class }
 )
 public class AppModule {
     private App app;

@@ -1,4 +1,4 @@
-package es.flakiness.hiccup;
+package es.flakiness.hiccup.play;
 
 import android.content.Context;
 import android.media.MediaPlayer;
