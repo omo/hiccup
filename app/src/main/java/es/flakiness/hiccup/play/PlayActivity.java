@@ -39,7 +39,7 @@ public class PlayActivity extends Activity {
         getActionBar().hide();
         setContentView(R.layout.activity_play);
         ButterKnife.inject(this);
-        graph.inject(playView);
+        playView.injectFrom(graph);
     }
 
     @Override

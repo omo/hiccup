@@ -5,16 +5,25 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import java.io.IOException;
 
 import javax.inject.Inject;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import dagger.ObjectGraph;
+import es.flakiness.hiccup.R;
+import rx.Observable;
+
 public class PlayView extends FrameLayout {
 
-    @Inject
-    Player player;
+    @Inject Player player;
+    @InjectView(R.id.play_view_debug_text) TextView debugText;
+    @InjectView(R.id.play_view_gesture) PlayGestureView gesture;
 
     public PlayView(Context context) {
         this(context, null);
@@ -36,11 +45,14 @@ public class PlayView extends FrameLayout {
     }
 
     private void initialize() {
-
+        // TODO(omo): This should be extracted to something like "inflateAndInject()"
+        LayoutInflater.from(getContext()).inflate(R.layout.play_view, this);
+        ButterKnife.inject(this);
     }
 
-    public void setUri(Uri uri) throws IOException {
-        this.player = new Player(getContext().getApplicationContext(), uri);
+    public void injectFrom(ObjectGraph graph) {
+        graph.inject(this);
+        player.connectTo(gesture.gestures());
     }
 
     @Override
