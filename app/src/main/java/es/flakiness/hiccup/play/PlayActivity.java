@@ -8,6 +8,8 @@ import android.view.Window;
 
 import java.io.IOException;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import es.flakiness.hiccup.R;
 import es.flakiness.hiccup.play.TalkPlayer;
 
@@ -16,29 +18,24 @@ public class PlayActivity extends Activity {
 
     public static final String EXTRA_KEY = "PLAY_ACTIVITY_URI";
 
-    private TalkPlayer player;
+    @InjectView(R.id.play_view) PlayView playView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         // http://stackoverflow.com/questions/8500283/how-to-hide-action-bar-before-activity-is-created-and-then-show-it-again
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         getActionBar().hide();
         setContentView(R.layout.activity_play);
+        ButterKnife.inject(this);
 
-        Uri uri = (Uri)getIntent().getParcelableExtra(EXTRA_KEY);
         try {
-            this.player = new TalkPlayer(this.getApplicationContext(), uri);
+            playView.setUri((Uri)getIntent().getParcelableExtra(EXTRA_KEY));
         } catch (IOException e) {
             // TODO(omo): handle Gracefully.
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        this.player.onHostClose();
-        super.onDestroy();
     }
 
     @Override

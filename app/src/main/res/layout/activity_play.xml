@@ -2,7 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:background="#0099cc"
     tools:context="es.flakiness.hiccup.play.PlayActivity">
-    <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent"
+    <es.flakiness.hiccup.play.PlayView android:layout_width="match_parent" android:layout_height="match_parent"
+        android:id="@+id/play_view"
         android:fitsSystemWindows="true">
-    </FrameLayout>
+    </es.flakiness.hiccup.play.PlayView>
 </FrameLayout>
