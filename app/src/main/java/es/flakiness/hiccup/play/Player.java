@@ -5,7 +5,6 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -44,11 +43,22 @@ public class Player {
             }
         });
 
+        this.player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                onPlayerCompleted();
+            }
+        });
         setState(PlayerState.PREPARING);
     }
 
+    private void onPlayerCompleted() {
+        this.pause();
+        setState(PlayerState.COMPLETED);
+    }
+
     public void onPlayerPrepared() {
-        state = PlayerState.PREPARED;
+        setState(PlayerState.PREPARED);
         startIfNeededAndPossible();
     }
 
@@ -58,8 +68,9 @@ public class Player {
     }
 
     private void startIfNeededAndPossible() {
-       if (startRequested && (state != PlayerState.PREPARED || state != PlayerState.PAUSING)) {
+       if (startRequested && state.isReadyToStart()) {
            player.start();
+           startRequested = false;
            setState(PlayerState.PLAYING);
        }
     }
@@ -72,23 +83,22 @@ public class Player {
     }
 
     private void pause() {
-        // TODO(morrita): Handle unprepared case.
-        player.pause();
-        setState(PlayerState.PAUSING);
+        if (state.isPauseable()) {
+            player.pause();
+            setState(PlayerState.PAUSING);
+        }
     }
 
     private void hold() {
-        // TODO(morrita): Handle unprepared case.
-        if (state != PlayerState.PAUSING || state != PlayerState.HOLDING)
+        if (state.isPauseable()) {
             player.pause();
-        setState(PlayerState.HOLDING);
+            setState(PlayerState.HOLDING);
+        }
     }
 
-    private void unholdIfHeld() {
-        if (state != PlayerState.HOLDING)
-            return;
-        // TODO(morrita): Should stay paused if the last state is paused.
-        start();
+    private void unholdIfHolding() {
+        if (state == PlayerState.HOLDING)
+            start();
     }
 
     public void release() {
@@ -119,7 +129,6 @@ public class Player {
                 new Handler(Looper.myLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(context, "Hey!", Toast.LENGTH_SHORT).show();
                         subscriber.onNext(getProgress());
                     }
                 }, quantized);
@@ -156,7 +165,7 @@ public class Player {
                         hold();
                         break;
                     case MAY_UNHOLD:
-                        unholdIfHeld();
+                        unholdIfHolding();
                         break;
                 }
             }
