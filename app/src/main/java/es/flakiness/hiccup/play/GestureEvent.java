@@ -4,7 +4,8 @@ public class GestureEvent {
     public enum Type {
         TAP,
         HOLD,
-        MAY_UNHOLD
+        RELEASE,
+        PULL
     }
 
     private final Type type;

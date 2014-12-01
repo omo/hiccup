@@ -17,9 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import es.flakiness.hiccup.PlayTalkEvent;
 
+@Singleton
 public class TalkList implements ListAdapter {
 
     TalkStore store;

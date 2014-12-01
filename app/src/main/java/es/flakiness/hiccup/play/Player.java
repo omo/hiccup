@@ -25,6 +25,7 @@ public class Player {
     private PlayerState state;
     private Subscription gestureSubscription;
     private PublishSubject<PlayerState> stateSubject = PublishSubject.create();
+    private Seeker seeker;
 
     public Player(Context context, Uri uri) throws IOException {
         this.context = context;
@@ -93,12 +94,19 @@ public class Player {
         if (state.isPauseable()) {
             player.pause();
             setState(PlayerState.HOLDING);
+            seeker = new Seeker(getProgress());
         }
     }
 
     private void unholdIfHolding() {
-        if (state == PlayerState.HOLDING)
+        if (state == PlayerState.HOLDING) {
+            player.seekTo(seeker.release());
             start();
+        }
+    }
+
+    private void pull(float gradient) {
+        seeker.setGradient(gradient);
     }
 
     public void release() {
@@ -164,8 +172,11 @@ public class Player {
                     case HOLD:
                         hold();
                         break;
-                    case MAY_UNHOLD:
+                    case RELEASE:
                         unholdIfHolding();
+                        break;
+                    case PULL:
+                        pull(((PullEvent)gestureEvent).getDelta());
                         break;
                 }
             }

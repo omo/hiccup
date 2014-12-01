@@ -7,12 +7,13 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
 public class PlayGestureView extends View implements GestureDetector.OnGestureListener {
+
+    private MotionEvent pressedHere;
 
     private GestureDetector detector;
     private PublishSubject<GestureEvent> gestureSubject = PublishSubject.create();
@@ -48,6 +49,7 @@ public class PlayGestureView extends View implements GestureDetector.OnGestureLi
     @Override
     public void onShowPress(MotionEvent motionEvent) {
         gestureSubject.onNext(new GestureEvent(GestureEvent.Type.HOLD));
+        pressedHere = motionEvent;
     }
 
     @Override
@@ -57,7 +59,7 @@ public class PlayGestureView extends View implements GestureDetector.OnGestureLi
     }
 
     @Override
-    public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent2, float v, float v2) {
+    public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent2, float dx, float dy) {
         return true;
     }
 
@@ -74,8 +76,13 @@ public class PlayGestureView extends View implements GestureDetector.OnGestureLi
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         boolean ret = detector.onTouchEvent(event);
-        if (0 != (event.getActionMasked() & MotionEvent.ACTION_UP))
-            gestureSubject.onNext(new GestureEvent(GestureEvent.Type.MAY_UNHOLD));
+        if (null != pressedHere) {
+            if (0 != (event.getActionMasked() & MotionEvent.ACTION_UP))
+                onRelease(event);
+            else
+                onPull(event);
+        }
+
         return ret;
     }
 
@@ -83,6 +90,16 @@ public class PlayGestureView extends View implements GestureDetector.OnGestureLi
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         gestureSubject.onCompleted();
+    }
+
+    private void onRelease(MotionEvent event) {
+        gestureSubject.onNext(new GestureEvent(GestureEvent.Type.RELEASE));
+        pressedHere = null;
+    }
+
+    private void onPull(MotionEvent event) {
+        float delta = ((float) event.getX() - pressedHere.getX()) / getWidth();
+        gestureSubject.onNext(new PullEvent(delta));
     }
 
     public Observable<GestureEvent> gestures() {
