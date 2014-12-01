@@ -1,13 +1,12 @@
 package es.flakiness.hiccup.play;
 
-import android.util.Log;
-
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.subjects.PublishSubject;
 
 public class Seeker {
 
@@ -18,6 +17,7 @@ public class Seeker {
     private int current;
     private float gradient;
     private Subscription intervalSubscription;
+    private PublishSubject<Integer> currentPositionSubject = PublishSubject.create();
 
     public Seeker(PlayerProgress progress) {
         this(progress.getDuration(), progress.getCurrent());
@@ -37,9 +37,11 @@ public class Seeker {
     private void updateCurrent() {
         float velocity = (gradient * MAX_SEEK_PER_SEC) * (UPDATE_INTERVAL / 1000f);
         current += velocity;
+        currentPositionSubject.onNext(current);
     }
 
     public int release() {
+        currentPositionSubject.onCompleted();
         intervalSubscription.unsubscribe();
         return current;
     }
@@ -54,5 +56,9 @@ public class Seeker {
 
     public int getCurrent() {
         return current;
+    }
+
+    Observable<Integer> currentPositions() {
+        return currentPositionSubject;
     }
 }

@@ -25,6 +25,7 @@ public class Player {
     private PlayerState state;
     private Subscription gestureSubscription;
     private PublishSubject<PlayerState> stateSubject = PublishSubject.create();
+    private PublishSubject<PlayerProgress> irregularProgress = PublishSubject.create();
     private Seeker seeker;
 
     public Player(Context context, Uri uri) throws IOException {
@@ -95,6 +96,12 @@ public class Player {
             player.pause();
             setState(PlayerState.HOLDING);
             seeker = new Seeker(getProgress());
+            seeker.currentPositions().subscribe(new Action1<Integer>() {
+                @Override
+                public void call(Integer integer) {
+                    player.seekTo(integer.intValue());
+                }
+            });
         }
     }
 
