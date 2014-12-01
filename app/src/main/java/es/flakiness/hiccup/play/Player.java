@@ -3,31 +3,38 @@ package es.flakiness.hiccup.play;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
+import rx.Subscriber;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
-
-enum PlayerState {
-    PREPARING,
-    PREPARED,
-    PLAYING,
-    PAUSING,
-    HOLDING,
-};
+import rx.functions.Func1;
+import rx.subjects.PublishSubject;
 
 public class Player {
+    private final Context context;
     private final MediaPlayer player;
     private final Uri uri;
     private boolean startRequested;
     private PlayerState state;
     private Subscription gestureSubscription;
+    private PublishSubject<PlayerState> stateSubject = PublishSubject.create();
 
     public Player(Context context, Uri uri) throws IOException {
+        this.context = context;
         this.uri = uri;
         this.player = new MediaPlayer();
+
+        // This makes sure that |player| stay STARTED state internally.
+        this.player.setLooping(true);
+
         this.player.setDataSource(context, uri);
         this.player.prepareAsync();
         this.player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -37,7 +44,7 @@ public class Player {
             }
         });
 
-        this.state = PlayerState.PREPARING;
+        setState(PlayerState.PREPARING);
     }
 
     public void onPlayerPrepared() {
@@ -53,7 +60,7 @@ public class Player {
     private void startIfNeededAndPossible() {
        if (startRequested && (state != PlayerState.PREPARED || state != PlayerState.PAUSING)) {
            player.start();
-           state = PlayerState.PLAYING;
+           setState(PlayerState.PLAYING);
        }
     }
 
@@ -67,14 +74,14 @@ public class Player {
     private void pause() {
         // TODO(morrita): Handle unprepared case.
         player.pause();
-        state = PlayerState.PAUSING;
+        setState(PlayerState.PAUSING);
     }
 
     private void hold() {
         // TODO(morrita): Handle unprepared case.
         if (state != PlayerState.PAUSING || state != PlayerState.HOLDING)
             player.pause();
-        state = PlayerState.HOLDING;
+        setState(PlayerState.HOLDING);
     }
 
     private void unholdIfHeld() {
@@ -84,10 +91,57 @@ public class Player {
         start();
     }
 
-    public void onHostClose() {
+    public void release() {
         player.stop();
         player.release();
         gestureSubscription.unsubscribe();
+        stateSubject.onCompleted();
+    }
+
+    private void setState(PlayerState state) {
+        if (this.state == state)
+            return;
+        this.state = state;
+        stateSubject.onNext(state);
+    }
+
+    public PlayerProgress getProgress() {
+        return new PlayerProgress(player.getDuration(), player.getCurrentPosition());
+    }
+
+    Observable<PlayerProgress> intervalProgress(final long intervalMilliseconds) {
+        Observable<PlayerProgress> beginning = Observable.create(new Observable.OnSubscribe<PlayerProgress>() {
+            @Override
+            public void call(final Subscriber<? super PlayerProgress> subscriber) {
+                PlayerProgress current = getProgress();
+                subscriber.onNext(current);
+                long quantized = intervalMilliseconds - (current.getCurrent() % intervalMilliseconds);
+                new Handler(Looper.myLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context, "Hey!", Toast.LENGTH_SHORT).show();
+                        subscriber.onNext(getProgress());
+                    }
+                }, quantized);
+            }
+        });
+
+        // TODO(omo): Should squash same ones.
+        return beginning.concatMap(new Func1<PlayerProgress, Observable<? extends PlayerProgress>>() {
+            @Override
+            public Observable<? extends PlayerProgress> call(PlayerProgress playerProgress) {
+                return Observable.interval(intervalMilliseconds, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread()).map(new Func1<Long, PlayerProgress>() {
+                    @Override
+                    public PlayerProgress call(Long aLong) {
+                        return getProgress();
+                    }
+                });
+            }
+        });
+    }
+
+    Observable<PlayerState> states() {
+        return stateSubject;
     }
 
     public void connectTo(Observable<GestureEvent> gestures) {
