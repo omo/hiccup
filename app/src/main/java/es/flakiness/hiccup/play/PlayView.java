@@ -62,7 +62,7 @@ public class PlayView extends FrameLayout {
         });
 
         // TODO(omo): Unsubscribe.
-        player.intervalProgress(1000).subscribe(new Action1<PlayerProgress>() {
+        player.progress().subscribe(new Action1<PlayerProgress>() {
             @Override
             public void call(PlayerProgress playerProgress) {
                 onPlayerProgressUpdated(playerProgress);

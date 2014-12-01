@@ -5,16 +5,13 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
-import rx.Subscriber;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
-import rx.functions.Func1;
 import rx.subjects.PublishSubject;
 
 public class Player {
@@ -25,8 +22,21 @@ public class Player {
     private PlayerState state;
     private Subscription gestureSubscription;
     private PublishSubject<PlayerState> stateSubject = PublishSubject.create();
-    private PublishSubject<PlayerProgress> irregularProgress = PublishSubject.create();
+    private PublishSubject<PlayerProgress> progressSubject = PublishSubject.create();
     private Seeker seeker;
+
+    private static int UPDATE_INTERVAL = 1000;
+    private Handler progressHandler;
+    private Runnable postProgress = new Runnable() {
+        @Override
+        public void run() {
+            notifyProgress();
+            int delay = UPDATE_INTERVAL - player.getCurrentPosition() % UPDATE_INTERVAL;
+            if (progressHandler != null)
+                progressHandler.postDelayed(postProgress, delay);
+        }
+    };
+
 
     public Player(Context context, Uri uri) throws IOException {
         this.context = context;
@@ -51,7 +61,24 @@ public class Player {
                 onPlayerCompleted();
             }
         });
+
+        this.player.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+            @Override
+            public void onSeekComplete(MediaPlayer mediaPlayer) {
+                onPlayerSeekComplete();
+            }
+        });
         setState(PlayerState.PREPARING);
+
+        this.progressHandler = new Handler(Looper.myLooper());
+        this.progressHandler.postDelayed(postProgress, 0);
+    }
+
+    private void onPlayerSeekComplete() {
+        Log.d("Player", "onPlayerSeekComplete");
+        setState(PlayerState.SEEKED);
+        startIfNeededAndPossible();
+        notifyProgress();
     }
 
     private void onPlayerCompleted() {
@@ -99,7 +126,7 @@ public class Player {
             seeker.currentPositions().subscribe(new Action1<Integer>() {
                 @Override
                 public void call(Integer integer) {
-                    player.seekTo(integer.intValue());
+                    notifyProgress();
                 }
             });
         }
@@ -107,7 +134,15 @@ public class Player {
 
     private void unholdIfHolding() {
         if (state == PlayerState.HOLDING) {
-            player.seekTo(seeker.release());
+            int nextPosition = seeker.release();
+            Log.d("Player", String.format("delta:%d", Math.abs(nextPosition - player.getCurrentPosition())));
+            if (1000 < Math.abs(nextPosition - player.getCurrentPosition())) {
+                setState(PlayerState.SEEKING);
+                this.player.seekTo(nextPosition);
+            }
+
+            seeker = null;
+            notifyProgress();
             start();
         }
     }
@@ -121,6 +156,7 @@ public class Player {
         player.release();
         gestureSubscription.unsubscribe();
         stateSubject.onCompleted();
+        progressHandler = null;
     }
 
     private void setState(PlayerState state) {
@@ -130,38 +166,29 @@ public class Player {
         stateSubject.onNext(state);
     }
 
-    public PlayerProgress getProgress() {
-        return new PlayerProgress(player.getDuration(), player.getCurrentPosition());
+    private void notifyProgress() {
+        if (progressSubject.hasObservers())
+            progressSubject.onNext(getProgress());
     }
 
-    Observable<PlayerProgress> intervalProgress(final long intervalMilliseconds) {
-        Observable<PlayerProgress> beginning = Observable.create(new Observable.OnSubscribe<PlayerProgress>() {
-            @Override
-            public void call(final Subscriber<? super PlayerProgress> subscriber) {
-                PlayerProgress current = getProgress();
-                subscriber.onNext(current);
-                long quantized = intervalMilliseconds - (current.getCurrent() % intervalMilliseconds);
-                new Handler(Looper.myLooper()).postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        subscriber.onNext(getProgress());
-                    }
-                }, quantized);
-            }
-        });
+    public PlayerProgress getProgress() {
+        if (seeker == null)
+            return new PlayerProgress(player.getDuration(), player.getCurrentPosition());
+        else
+            return new PlayerProgress(seeker.getDuration(), seeker.getCurrent());
+    }
 
-        // TODO(omo): Should squash same ones.
-        return beginning.concatMap(new Func1<PlayerProgress, Observable<? extends PlayerProgress>>() {
-            @Override
-            public Observable<? extends PlayerProgress> call(PlayerProgress playerProgress) {
-                return Observable.interval(intervalMilliseconds, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread()).map(new Func1<Long, PlayerProgress>() {
-                    @Override
-                    public PlayerProgress call(Long aLong) {
-                        return getProgress();
-                    }
-                });
-            }
-        });
+    Observable<PlayerProgress> progress() {
+        if (progressHandler != null) {
+            progressHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    progressSubject.onNext(getProgress());
+                }
+            });
+        }
+
+        return progressSubject;
     }
 
     Observable<PlayerState> states() {

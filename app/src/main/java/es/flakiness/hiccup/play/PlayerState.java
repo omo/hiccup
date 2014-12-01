@@ -6,10 +6,12 @@ public enum PlayerState {
     PLAYING,
     PAUSING,
     HOLDING,
-    COMPLETED;
+    COMPLETED,
+    SEEKING,
+    SEEKED;
 
     public boolean isReadyToStart() {
-        return this == PREPARED || this == PAUSING || this == HOLDING;
+        return this == PREPARED || this == PAUSING || this == HOLDING || this == SEEKED;
     }
 
     public boolean isPauseable() {
