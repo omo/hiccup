@@ -15,6 +15,8 @@ import rx.functions.Action1;
 import rx.subjects.PublishSubject;
 
 public class Player {
+    private final String TAG = getClass().getSimpleName();
+
     private final Context context;
     private final MediaPlayer player;
     private final Uri uri;
@@ -75,7 +77,12 @@ public class Player {
     }
 
     private void onPlayerSeekComplete() {
-        Log.d("Player", "onPlayerSeekComplete");
+        if (state != PlayerState.SEEKING) {
+            // This does happen. MediaPlayer calls onPlayerSeekComplete() even when
+            // the user doesn't request seekTo().
+            return;
+        }
+
         setState(PlayerState.SEEKED);
         startIfNeededAndPossible();
         notifyProgress();
@@ -119,7 +126,7 @@ public class Player {
     }
 
     private void hold() {
-        if (state.isPauseable()) {
+        if (state.isHoldable()) {
             player.pause();
             setState(PlayerState.HOLDING);
             seeker = new Seeker(getProgress());
@@ -135,7 +142,6 @@ public class Player {
     private void unholdIfHolding() {
         if (state == PlayerState.HOLDING) {
             int nextPosition = seeker.release();
-            Log.d("Player", String.format("delta:%d", Math.abs(nextPosition - player.getCurrentPosition())));
             if (1000 < Math.abs(nextPosition - player.getCurrentPosition())) {
                 setState(PlayerState.SEEKING);
                 this.player.seekTo(nextPosition);

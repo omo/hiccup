@@ -17,4 +17,8 @@ public enum PlayerState {
     public boolean isPauseable() {
         return this == PLAYING;
     }
+
+    public boolean isHoldable() {
+        return this == PLAYING || this == PAUSING;
+    }
 }
