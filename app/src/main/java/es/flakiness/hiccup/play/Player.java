@@ -33,9 +33,10 @@ public class Player {
         @Override
         public void run() {
             notifyProgress();
-            int delay = UPDATE_INTERVAL - player.getCurrentPosition() % UPDATE_INTERVAL;
-            if (progressHandler != null)
+            if (progressHandler != null) {
+                int delay = UPDATE_INTERVAL - player.getCurrentPosition() % UPDATE_INTERVAL;
                 progressHandler.postDelayed(postProgress, delay);
+            }
         }
     };
 
@@ -189,7 +190,9 @@ public class Player {
             progressHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    progressSubject.onNext(getProgress());
+                    if (progressHandler != null) {
+                        progressSubject.onNext(getProgress());
+                    }
                 }
             });
         }

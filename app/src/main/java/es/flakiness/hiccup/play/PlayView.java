@@ -15,6 +15,7 @@ import butterknife.InjectView;
 import dagger.ObjectGraph;
 import es.flakiness.hiccup.R;
 import rx.functions.Action1;
+import rx.subscriptions.CompositeSubscription;
 
 public class PlayView extends FrameLayout {
 
@@ -24,6 +25,7 @@ public class PlayView extends FrameLayout {
 
     private String debugStateText = "";
     private String debugProgressText = "";
+    private CompositeSubscription subscriptions;
 
     public PlayView(Context context) {
         this(context, null);
@@ -52,22 +54,22 @@ public class PlayView extends FrameLayout {
 
     public void injectFrom(ObjectGraph graph) {
         graph.inject(this);
+        subscriptions = new CompositeSubscription(); // TODO: Unsubscribe.
+
         player.connectTo(gesture.gestures());
-        // TODO(omo): Unsubscribe.
-        player.states().subscribe(new Action1<PlayerState>() {
+        subscriptions.add(player.states().subscribe(new Action1<PlayerState>() {
             @Override
             public void call(PlayerState playerState) {
                 onPlayerStateChanged(playerState);
             }
-        });
+        }));
 
-        // TODO(omo): Unsubscribe.
-        player.progress().subscribe(new Action1<PlayerProgress>() {
+        subscriptions.add(player.progress().subscribe(new Action1<PlayerProgress>() {
             @Override
             public void call(PlayerProgress playerProgress) {
                 onPlayerProgressUpdated(playerProgress);
             }
-        });
+        }));
     }
 
     private void onPlayerStateChanged(PlayerState playerState) {
@@ -96,5 +98,6 @@ public class PlayView extends FrameLayout {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         player.release();
+        subscriptions.unsubscribe();
     }
 }
