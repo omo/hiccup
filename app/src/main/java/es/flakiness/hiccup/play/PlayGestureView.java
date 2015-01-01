@@ -7,6 +7,7 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import rx.Observable;
 import rx.subjects.PublishSubject;
@@ -69,7 +70,10 @@ public class PlayGestureView extends View implements GestureDetector.OnGestureLi
     }
 
     @Override
-    public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent2, float v, float v2) {
+    public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent2, float vx, float vy) {
+        boolean flingToLeft = vx < 0.0 && Math.abs(vx) > Math.abs(vy);
+        if (flingToLeft)
+            onFlingBack();
         return true;
     }
 
@@ -100,6 +104,10 @@ public class PlayGestureView extends View implements GestureDetector.OnGestureLi
     private void onPull(MotionEvent event) {
         float delta = ((float) event.getX() - pressedHere.getX()) / getWidth();
         gestureSubject.onNext(new PullEvent(delta));
+    }
+
+    private void onFlingBack() {
+        gestureSubject.onNext(new GestureEvent(GestureEvent.Type.FLING_BACK));
     }
 
     public Observable<GestureEvent> gestures() {

@@ -140,18 +140,33 @@ public class Player {
         }
     }
 
+    private int releaseSeeker() {
+        if (null == seeker)
+            return 0;
+        int position = seeker.release();
+        seeker = null;
+        return position;
+    }
+
     private void unholdIfHolding() {
         if (state == PlayerState.HOLDING) {
-            int nextPosition = seeker.release();
+            int nextPosition = releaseSeeker();
             if (1000 < Math.abs(nextPosition - player.getCurrentPosition())) {
                 setState(PlayerState.SEEKING);
                 this.player.seekTo(nextPosition);
             }
 
-            seeker = null;
             notifyProgress();
             start();
         }
+    }
+
+    private void flingBack() {
+        releaseSeeker();
+        setState(PlayerState.SEEKING);
+        this.player.seekTo(0);
+        notifyProgress();
+        start();
     }
 
     private void pull(float gradient) {
@@ -220,6 +235,9 @@ public class Player {
                         break;
                     case PULL:
                         pull(((PullEvent)gestureEvent).getDelta());
+                        break;
+                    case FLING_BACK:
+                        flingBack();
                         break;
                 }
             }

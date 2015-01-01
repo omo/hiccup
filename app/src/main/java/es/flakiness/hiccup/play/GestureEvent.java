@@ -5,7 +5,8 @@ public class GestureEvent {
         TAP,
         HOLD,
         RELEASE,
-        PULL
+        PULL,
+        FLING_BACK
     }
 
     private final Type type;

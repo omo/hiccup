@@ -54,7 +54,7 @@ public class PlayView extends FrameLayout {
 
     public void injectFrom(ObjectGraph graph) {
         graph.inject(this);
-        subscriptions = new CompositeSubscription(); // TODO: Unsubscribe.
+        subscriptions = new CompositeSubscription();
 
         player.connectTo(gesture.gestures());
         subscriptions.add(player.states().subscribe(new Action1<PlayerState>() {
