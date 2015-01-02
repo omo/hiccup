@@ -7,6 +7,7 @@ public class Talk {
     public String uri;
     public String title;
     public Long duration;
+    public Long lastPosition;
 
     public Talk() {
     }
@@ -16,5 +17,6 @@ public class Talk {
         this.uri = uri;
         this.title = title;
         this.duration = duration;
+        this.lastPosition = new Long(0);
     }
 }

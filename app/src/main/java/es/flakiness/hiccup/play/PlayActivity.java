@@ -18,7 +18,8 @@ import es.flakiness.hiccup.R;
 
 public class PlayActivity extends Activity {
 
-    public static final String EXTRA_KEY = "PLAY_ACTIVITY_URI";
+    public static final String EXTRA_KEY_URL = "PLAY_ACTIVITY_URI";
+    public static final String EXTRA_KEY_LAST_POSITION = "PLAY_LAST_POSITION";
 
     private ObjectGraph graph;
 
@@ -28,7 +29,9 @@ public class PlayActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
-            graph = App.plus(getApplicationContext(), new PlayModule(this, (Uri) getIntent().getParcelableExtra(EXTRA_KEY)));
+            Uri uri = (Uri) getIntent().getParcelableExtra(EXTRA_KEY_URL);
+            int lastPosition = getIntent().getIntExtra(EXTRA_KEY_LAST_POSITION, 0);
+            graph = App.plus(getApplicationContext(), new PlayModule(this, uri, lastPosition));
         } catch (IOException e) {
             // TODO(omo): handle Gracefully.
             throw new RuntimeException(e);

@@ -5,6 +5,7 @@ import android.database.DataSetObservable;
 import android.database.DataSetObserver;
 import android.media.MediaMetadataRetriever;
 import android.os.Build;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -19,6 +20,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import es.flakiness.hiccup.LeaveTalkEvent;
 import es.flakiness.hiccup.PlayTalkEvent;
 
 @Singleton
@@ -114,14 +116,17 @@ public class TalkList implements ListAdapter {
     }
 
     @Subscribe public void addDebugTalk(AddDebugTalkEvent event) {
-        // TODO(omo): Should go background.
         store.putDebugInstance();
         notifyChanged();
     }
 
     @Subscribe public void clearTalk(ClearTalkEvent event) {
-        // TODO(omo): Should go background.
         store.clear();
+        notifyChanged();
+    }
+
+    @Subscribe public void didLeaveTalk(LeaveTalkEvent event) {
+        store.updateLastPosition(event.getUri(), event.getLeavingPosition());
         notifyChanged();
     }
 
@@ -141,12 +146,13 @@ public class TalkList implements ListAdapter {
     }
 
     private void notifyChanged() {
-        // TODO(omo): SHould go background.
+        // TODO(omo): Should go background.
         presoList = toPresoList(store.list());
         observable.notifyChanged();
     }
 
     public void onClickAt(int i) {
-        bus.post(new PlayTalkEvent(presoList.get(i).getUri()));
+        TalkPreso preso = presoList.get(i);
+        bus.post(new PlayTalkEvent(preso.getUri(), preso.getLastPosition()));
     }
 }

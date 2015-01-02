@@ -12,7 +12,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         CupboardFactory.cupboard().register(Talk.class);
     }
 
-    public static int VERSION = 3;
+    public static int VERSION = 4;
     public static String NAME = "main";
 
     public DatabaseOpenHelper(Context context) {

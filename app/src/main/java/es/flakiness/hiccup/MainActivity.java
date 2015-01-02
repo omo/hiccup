@@ -75,7 +75,8 @@ public class MainActivity extends Activity {
     @Subscribe
     public void playTalk(PlayTalkEvent event) {
         Intent intent = new Intent(this, PlayActivity.class);
-        intent.putExtra(PlayActivity.EXTRA_KEY, event.getUri());
+        intent.putExtra(PlayActivity.EXTRA_KEY_URL, event.getUri());
+        intent.putExtra(PlayActivity.EXTRA_KEY_LAST_POSITION, event.getLastPosition());
         startActivity(intent);
     }
 }

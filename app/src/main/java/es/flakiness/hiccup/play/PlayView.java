@@ -8,11 +8,14 @@ import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.squareup.otto.Bus;
+
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import dagger.ObjectGraph;
+import es.flakiness.hiccup.LeaveTalkEvent;
 import es.flakiness.hiccup.R;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
@@ -20,6 +23,7 @@ import rx.subscriptions.CompositeSubscription;
 public class PlayView extends FrameLayout {
 
     @Inject Player player;
+    @Inject Bus bus;
     @InjectView(R.id.play_view_debug_text) TextView debugText;
     @InjectView(R.id.play_view_gesture) PlayGestureView gesture;
 
@@ -97,6 +101,7 @@ public class PlayView extends FrameLayout {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        bus.post(new LeaveTalkEvent(player.getUri(), player.getProgress().getCurrent()));
         player.release();
         subscriptions.unsubscribe();
     }

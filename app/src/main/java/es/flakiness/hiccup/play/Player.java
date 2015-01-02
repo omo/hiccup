@@ -5,6 +5,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.Toast;
 
 import java.io.IOException;
 
@@ -19,6 +20,7 @@ public class Player {
     private final Context context;
     private final MediaPlayer player;
     private final Uri uri;
+    private final int lastPosition;
     private boolean startRequested;
     private PlayerState state;
     private Subscription gestureSubscription;
@@ -39,14 +41,17 @@ public class Player {
         }
     };
 
+    public Uri getUri() {
+        return uri;
+    }
 
-    public Player(Context context, Uri uri) throws IOException {
+    public Player(Context context, Uri uri, int lastPosition) throws IOException {
         this.context = context;
         this.uri = uri;
+        this.lastPosition = lastPosition;
         this.player = new MediaPlayer();
 
         this.player.setDataSource(context, uri);
-        this.player.prepareAsync();
         this.player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mediaPlayer) {
@@ -67,10 +72,14 @@ public class Player {
                 onPlayerSeekComplete();
             }
         });
+
+        this.player.prepareAsync();
         setState(PlayerState.PREPARING);
 
         this.progressHandler = new Handler(Looper.myLooper());
         this.progressHandler.postDelayed(postProgress, 0);
+
+        Toast.makeText(this.context, "last:" + lastPosition, Toast.LENGTH_SHORT).show();
     }
 
     private void onPlayerSeekComplete() {
