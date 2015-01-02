@@ -149,8 +149,8 @@ public class Player {
     }
 
     private void unholdIfHolding() {
+        int nextPosition = releaseSeeker();
         if (state == PlayerState.HOLDING) {
-            int nextPosition = releaseSeeker();
             if (1000 < Math.abs(nextPosition - player.getCurrentPosition())) {
                 setState(PlayerState.SEEKING);
                 this.player.seekTo(nextPosition);
