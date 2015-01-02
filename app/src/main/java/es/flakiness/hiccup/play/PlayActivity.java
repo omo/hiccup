@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Window;
+import android.view.WindowManager;
 
 import java.io.IOException;
 
@@ -26,7 +27,6 @@ public class PlayActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         try {
             graph = App.plus(getApplicationContext(), new PlayModule(this, (Uri) getIntent().getParcelableExtra(EXTRA_KEY)));
         } catch (IOException e) {
@@ -38,6 +38,7 @@ public class PlayActivity extends Activity {
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         getActionBar().hide();
         setContentView(R.layout.activity_play);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         ButterKnife.inject(this);
         playView.injectFrom(graph);
     }
