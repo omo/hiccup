@@ -162,6 +162,12 @@ public class Player {
     }
 
     private void flingBack() {
+        if (state != PlayerState.PAUSING)
+            return;
+        moveToHead();
+    }
+
+    private void moveToHead() {
         releaseSeeker();
         setState(PlayerState.SEEKING);
         this.player.seekTo(0);
