@@ -5,7 +5,6 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import java.io.IOException;
 
@@ -45,9 +44,6 @@ public class Player {
         this.context = context;
         this.uri = uri;
         this.player = new MediaPlayer();
-
-        // This makes sure that |player| stay STARTED state internally.
-        this.player.setLooping(true);
 
         this.player.setDataSource(context, uri);
         this.player.prepareAsync();
@@ -90,8 +86,8 @@ public class Player {
     }
 
     private void onPlayerCompleted() {
-        this.pause();
-        setState(PlayerState.COMPLETED);
+        player.seekTo(player.getDuration() - 1);
+        pause();
     }
 
     public void onPlayerPrepared() {
