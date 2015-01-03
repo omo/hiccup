@@ -102,7 +102,7 @@ public class PlayView extends FrameLayout {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        bus.post(new LeaveTalkEvent(interpreter.getUri(), interpreter.getProgress().getCurrent()));
+        bus.post(new LeaveTalkEvent(interpreter.getUri(), interpreter.getCurrentPosition()));
         interpreter.release();
         subscriptions.unsubscribe();
     }

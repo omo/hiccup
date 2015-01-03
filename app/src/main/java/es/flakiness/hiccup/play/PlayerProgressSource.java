@@ -39,12 +39,17 @@ public class PlayerProgressSource {
     }
 
     public void stop() {
+        handler.removeCallbacks(postProgress);
         handler = null;
     }
 
     public void emit() {
-        if (subject.hasObservers())
-            subject.onNext(values.getProgress());
+        emit(values.getProgress());
+    }
+
+    public void emit(PlayerProgress progress) {
+        if (subject.hasObservers() && null != progress)
+            subject.onNext(progress);
     }
 
     public Observable<PlayerProgress> getObservable() {
@@ -52,9 +57,8 @@ public class PlayerProgressSource {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (handler != null) {
-                        subject.onNext(values.getProgress());
-                    }
+                    if (handler != null)
+                        emit();
                 }
             });
         }

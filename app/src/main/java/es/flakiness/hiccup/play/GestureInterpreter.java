@@ -1,156 +1,44 @@
 package es.flakiness.hiccup.play;
 
 import android.content.Context;
-import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Action1;
-import rx.subjects.PublishSubject;
 
-public class GestureInterpreter implements PlayerProgressSource.Values {
-    private interface PendingAction {
-        boolean run();
-    }
 
+public class GestureInterpreter {
     private final String TAG = getClass().getSimpleName();
 
-    private final Context context;
-    private final MediaPlayer player;
-    private final Uri uri;
-    private final int lastPosition;
-    private PlayerProgressSource progressSource;
-    private PlayerState state;
+    final private Player player;
     private Subscription gestureSubscription;
-    private PublishSubject<PlayerState> stateSubject = PublishSubject.create();
     private Seeker seeker;
-    private List<PendingAction> pendingActions = new ArrayList(); // FIXME: Could be different class.
 
     public Uri getUri() {
-        return uri;
+        return player.getUri();
     }
 
     public GestureInterpreter(Context context, Uri uri, int lastPosition) throws IOException {
-        this.context = context;
-        this.uri = uri;
-        this.lastPosition = lastPosition;
-        this.progressSource = new PlayerProgressSource(this, new Handler(Looper.myLooper()));
-        this.player = new MediaPlayer();
-        this.player.setDataSource(context, uri);
-        this.player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mediaPlayer) {
-                GestureInterpreter.this.onPlayerPrepared();
-            }
-        });
-
-        this.player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                onPlayerCompleted();
-            }
-        });
-
-        this.player.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
-            @Override
-            public void onSeekComplete(MediaPlayer mediaPlayer) {
-                onPlayerSeekComplete();
-            }
-        });
-
-        prepareStarting();
-        start();
-        seekTo(lastPosition);
-        start();
-    }
-
-    private void consumePendingActionsWhilePossible() {
-        while (!pendingActions.isEmpty()) {
-            boolean done = pendingActions.get(0).run();
-            if (!done)
-                break;
-            pendingActions.remove(0);
-        }
-    }
-
-    private void onPlayerSeekComplete() {
-        if (state != PlayerState.SEEKING) {
-            // This does happen. MediaPlayer calls onPlayerSeekComplete() even when
-            // the user doesn't request seekTo().
-            return;
-        }
-
-        if (player.isPlaying())
-            throw new AssertionError("The GestureInterpreter should be paused after seeking.");
-        setState(PlayerState.PAUSING);
-        consumePendingActionsWhilePossible();
-        progressSource.emit();
-    }
-
-    private void onPlayerCompleted() {
-        seekTo(player.getDuration() - 1);
-    }
-
-    private void prepareStarting() {
-        this.player.prepareAsync();
-        setState(PlayerState.PREPARING);
-    }
-
-    public void onPlayerPrepared() {
-        progressSource.start();
-        
-        setState(PlayerState.PREPARED);
-        consumePendingActionsWhilePossible();
-    }
-
-    public void start() {
-        pendingActions.add(new PendingAction() {
-            @Override
-            public boolean run() {
-                if (!state.isReadyToStart())
-                    return false;
-                GestureInterpreter.this.player.start();
-                setState(PlayerState.PLAYING);
-                return true;
-            }
-        });
-
-        consumePendingActionsWhilePossible();
-    }
-
-    public void toggle() {
-        if (state == PlayerState.PLAYING)
-            pause();
-        else
-            start();
-    }
-
-    private void pause() {
-        // FIXME: This should be pend-able.
-        if (state.isPauseable()) {
-            player.pause();
-            setState(PlayerState.PAUSING);
-        }
+        player = new Player(context, uri);
+        player.start();
+        player.seekTo(lastPosition);
+        player.start();
     }
 
     private void hold() {
-        if (state.isHoldable()) {
-            player.pause();
-            setState(PlayerState.HOLDING);
-            seeker = new Seeker(getProgress());
+        if (player.getState().isHoldable()) {
+            seeker = new Seeker(player.getProgress());
             seeker.currentPositions().subscribe(new Action1<Integer>() {
                 @Override
                 public void call(Integer integer) {
-                    progressSource.emit();
+                    player.emit(new PlayerProgress(seeker.getDuration(), seeker.getCurrent()));
                 }
             });
+
+            player.hold();
         }
     }
 
@@ -164,79 +52,52 @@ public class GestureInterpreter implements PlayerProgressSource.Values {
 
     private void unholdIfHolding() {
         int nextPosition = releaseSeeker();
-        if (state != PlayerState.HOLDING)
+        if (player.getState() != PlayerState.HOLDING)
             return;
-        if (1000 < Math.abs(nextPosition - player.getCurrentPosition()))
-            seekTo(nextPosition);
-        start();
+        player.seekTo(nextPosition);
+        player.start();
     }
 
-    private void seekTo(final int nextPosition) {
-        pendingActions.add(new PendingAction() {
-            @Override
-            public boolean run() {
-                if (state.isBusy())
-                    return false;
-                setState(PlayerState.SEEKING);
-                player.pause(); // This guarantees that the interpreter goes back to pause after seeking.
-                player.seekTo(nextPosition);
-                return true;
-            }
-        });
-
-        consumePendingActionsWhilePossible();
-    }
 
     private void flingBack() {
-        if (state != PlayerState.PAUSING)
+        if (player.getState() != PlayerState.PAUSING)
             return;
         moveToHead();
     }
 
     private void moveToHead() {
         releaseSeeker();
-        seekTo(0);
-        start();
+        player.seekTo(0);
+        player.start();
+    }
+
+    private void toggle() {
+        player.toggle();
     }
 
     private void pull(float gradient) {
         seeker.setGradient(gradient);
     }
 
+    public void start() {
+        player.start();
+    }
+
     public void release() {
-        player.stop();
         player.release();
         gestureSubscription.unsubscribe();
-        stateSubject.onCompleted();
-        progressSource.stop();
     }
 
-    private void setState(PlayerState state) {
-        if (this.state == state)
-            return;
-        this.state = state;
-        stateSubject.onNext(state);
+    public Observable<PlayerProgress> progress() {
+        return player.progress();
     }
 
-    @Override
+    public Observable<PlayerState> states() {
+        return player.states();
+    }
+
     public int getCurrentPosition() {
         return player.getCurrentPosition();
-    }
-
-    @Override
-    public PlayerProgress getProgress() {
-        if (seeker == null)
-            return new PlayerProgress(player.getDuration(), player.getCurrentPosition());
-        else
-            return new PlayerProgress(seeker.getDuration(), seeker.getCurrent());
-    }
-
-    Observable<PlayerProgress> progress() {
-        return progressSource.getObservable();
-    }
-
-    Observable<PlayerState> states() {
-        return stateSubject;
     }
 
     public void connectTo(Observable<GestureEvent> gestures) {
