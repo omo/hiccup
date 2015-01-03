@@ -5,7 +5,6 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ import rx.Subscription;
 import rx.functions.Action1;
 import rx.subjects.PublishSubject;
 
-public class Player {
+public class Player implements PlayerProgressSource.Values {
     private interface PendingAction {
         boolean run();
     }
@@ -27,25 +26,12 @@ public class Player {
     private final MediaPlayer player;
     private final Uri uri;
     private final int lastPosition;
+    private PlayerProgressSource progressSource;
     private PlayerState state;
     private Subscription gestureSubscription;
     private PublishSubject<PlayerState> stateSubject = PublishSubject.create();
-    private PublishSubject<PlayerProgress> progressSubject = PublishSubject.create();
     private Seeker seeker;
     private List<PendingAction> pendingActions = new ArrayList(); // FIXME: Could be different class.
-
-    private static int UPDATE_INTERVAL = 1000;
-    private Handler progressHandler;
-    private Runnable postProgress = new Runnable() {
-        @Override
-        public void run() {
-            notifyProgress();
-            if (progressHandler != null) {
-                int delay = UPDATE_INTERVAL - player.getCurrentPosition() % UPDATE_INTERVAL;
-                progressHandler.postDelayed(postProgress, delay);
-            }
-        }
-    };
 
     public Uri getUri() {
         return uri;
@@ -55,8 +41,8 @@ public class Player {
         this.context = context;
         this.uri = uri;
         this.lastPosition = lastPosition;
+        this.progressSource = new PlayerProgressSource(this, new Handler(Looper.myLooper()));
         this.player = new MediaPlayer();
-
         this.player.setDataSource(context, uri);
         this.player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
@@ -105,7 +91,7 @@ public class Player {
             throw new AssertionError("Tha player should be paused after seeking.");
         setState(PlayerState.PAUSING);
         consumePendingActionsWhilePossible();
-        notifyProgress();
+        progressSource.emit();
     }
 
     private void onPlayerCompleted() {
@@ -118,8 +104,8 @@ public class Player {
     }
 
     public void onPlayerPrepared() {
-        progressHandler = new Handler(Looper.myLooper());
-        progressHandler.postDelayed(postProgress, 0);
+        progressSource.start();
+        
         setState(PlayerState.PREPARED);
         consumePendingActionsWhilePossible();
     }
@@ -162,7 +148,7 @@ public class Player {
             seeker.currentPositions().subscribe(new Action1<Integer>() {
                 @Override
                 public void call(Integer integer) {
-                    notifyProgress();
+                    progressSource.emit();
                 }
             });
         }
@@ -222,7 +208,7 @@ public class Player {
         player.release();
         gestureSubscription.unsubscribe();
         stateSubject.onCompleted();
-        progressHandler = null;
+        progressSource.stop();
     }
 
     private void setState(PlayerState state) {
@@ -232,11 +218,12 @@ public class Player {
         stateSubject.onNext(state);
     }
 
-    private void notifyProgress() {
-        if (progressSubject.hasObservers())
-            progressSubject.onNext(getProgress());
+    @Override
+    public int getCurrentPosition() {
+        return player.getCurrentPosition();
     }
 
+    @Override
     public PlayerProgress getProgress() {
         if (seeker == null)
             return new PlayerProgress(player.getDuration(), player.getCurrentPosition());
@@ -245,18 +232,7 @@ public class Player {
     }
 
     Observable<PlayerProgress> progress() {
-        if (progressHandler != null) {
-            progressHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (progressHandler != null) {
-                        progressSubject.onNext(getProgress());
-                    }
-                }
-            });
-        }
-
-        return progressSubject;
+        return progressSource.getObservable();
     }
 
     Observable<PlayerState> states() {
