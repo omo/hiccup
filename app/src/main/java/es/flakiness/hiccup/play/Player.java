@@ -8,6 +8,8 @@ import android.os.Looper;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import rx.Observable;
 import rx.Subscription;
@@ -15,18 +17,22 @@ import rx.functions.Action1;
 import rx.subjects.PublishSubject;
 
 public class Player {
+    private interface PendingAction {
+        boolean run();
+    }
+
     private final String TAG = getClass().getSimpleName();
 
     private final Context context;
     private final MediaPlayer player;
     private final Uri uri;
     private final int lastPosition;
-    private boolean startRequested;
     private PlayerState state;
     private Subscription gestureSubscription;
     private PublishSubject<PlayerState> stateSubject = PublishSubject.create();
     private PublishSubject<PlayerProgress> progressSubject = PublishSubject.create();
     private Seeker seeker;
+    private List<PendingAction> pendingActions = new ArrayList(); // FIXME: Could be different class.
 
     private static int UPDATE_INTERVAL = 1000;
     private Handler progressHandler;
@@ -82,6 +88,15 @@ public class Player {
         Toast.makeText(this.context, "last:" + lastPosition, Toast.LENGTH_SHORT).show();
     }
 
+    private void consumePendingActionsWhilePossible() {
+        while (!pendingActions.isEmpty()) {
+            boolean done = pendingActions.get(0).run();
+            if (!done)
+                break;
+            pendingActions.remove(0);
+        }
+    }
+
     private void onPlayerSeekComplete() {
         if (state != PlayerState.SEEKING) {
             // This does happen. MediaPlayer calls onPlayerSeekComplete() even when
@@ -90,31 +105,33 @@ public class Player {
         }
 
         setState(PlayerState.SEEKED);
-        startIfNeededAndPossible();
+        consumePendingActionsWhilePossible();
         notifyProgress();
     }
 
     private void onPlayerCompleted() {
-        player.seekTo(player.getDuration() - 1);
+        player.seekTo(player.getDuration() - 1); // FIXME(omo): Shouldn't call seekTo() directly here.
         pause();
     }
 
     public void onPlayerPrepared() {
         setState(PlayerState.PREPARED);
-        startIfNeededAndPossible();
+        consumePendingActionsWhilePossible();
     }
 
     public void start() {
-        startRequested = true;
-        startIfNeededAndPossible();
-    }
+        pendingActions.add(new PendingAction() {
+            @Override
+            public boolean run() {
+                if (!state.isReadyToStart())
+                    return false;
+                Player.this.player.start();
+                setState(PlayerState.PLAYING);
+                return true;
+            }
+        });
 
-    private void startIfNeededAndPossible() {
-       if (startRequested && state.isReadyToStart()) {
-           player.start();
-           startRequested = false;
-           setState(PlayerState.PLAYING);
-       }
+        consumePendingActionsWhilePossible();
     }
 
     public void toggle() {
