@@ -2,7 +2,7 @@ package es.flakiness.hiccup.play;
 
 // FIXME:
 //   This seems redundant. We should be able to infer some of these from MediaPlayer API.
-//   Probably we could extract the non-policy part of the Player into a class and
+//   Probably we could extract the non-policy part of the GestureInterpreter into a class and
 //   give getState() api to that, instead of explicitly storing the state.
 public enum PlayerState {
     PREPARING,

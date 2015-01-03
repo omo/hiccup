@@ -22,7 +22,8 @@ import rx.subscriptions.CompositeSubscription;
 
 public class PlayView extends FrameLayout {
 
-    @Inject Player player;
+    @Inject
+    GestureInterpreter interpreter;
     @Inject Bus bus;
     @InjectView(R.id.play_view_debug_text) TextView debugText;
     @InjectView(R.id.play_view_gesture) PlayGestureView gesture;
@@ -60,15 +61,15 @@ public class PlayView extends FrameLayout {
         graph.inject(this);
         subscriptions = new CompositeSubscription();
 
-        player.connectTo(gesture.gestures());
-        subscriptions.add(player.states().subscribe(new Action1<PlayerState>() {
+        interpreter.connectTo(gesture.gestures());
+        subscriptions.add(interpreter.states().subscribe(new Action1<PlayerState>() {
             @Override
             public void call(PlayerState playerState) {
                 onPlayerStateChanged(playerState);
             }
         }));
 
-        subscriptions.add(player.progress().subscribe(new Action1<PlayerProgress>() {
+        subscriptions.add(interpreter.progress().subscribe(new Action1<PlayerProgress>() {
             @Override
             public void call(PlayerProgress playerProgress) {
                 onPlayerProgressUpdated(playerProgress);
@@ -95,14 +96,14 @@ public class PlayView extends FrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        player.start();
+        interpreter.start();
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        bus.post(new LeaveTalkEvent(player.getUri(), player.getProgress().getCurrent()));
-        player.release();
+        bus.post(new LeaveTalkEvent(interpreter.getUri(), interpreter.getProgress().getCurrent()));
+        interpreter.release();
         subscriptions.unsubscribe();
     }
 }

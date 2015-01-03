@@ -15,7 +15,7 @@ import rx.Subscription;
 import rx.functions.Action1;
 import rx.subjects.PublishSubject;
 
-public class Player implements PlayerProgressSource.Values {
+public class GestureInterpreter implements PlayerProgressSource.Values {
     private interface PendingAction {
         boolean run();
     }
@@ -37,7 +37,7 @@ public class Player implements PlayerProgressSource.Values {
         return uri;
     }
 
-    public Player(Context context, Uri uri, int lastPosition) throws IOException {
+    public GestureInterpreter(Context context, Uri uri, int lastPosition) throws IOException {
         this.context = context;
         this.uri = uri;
         this.lastPosition = lastPosition;
@@ -47,7 +47,7 @@ public class Player implements PlayerProgressSource.Values {
         this.player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mediaPlayer) {
-                Player.this.onPlayerPrepared();
+                GestureInterpreter.this.onPlayerPrepared();
             }
         });
 
@@ -88,7 +88,7 @@ public class Player implements PlayerProgressSource.Values {
         }
 
         if (player.isPlaying())
-            throw new AssertionError("Tha player should be paused after seeking.");
+            throw new AssertionError("The GestureInterpreter should be paused after seeking.");
         setState(PlayerState.PAUSING);
         consumePendingActionsWhilePossible();
         progressSource.emit();
@@ -116,7 +116,7 @@ public class Player implements PlayerProgressSource.Values {
             public boolean run() {
                 if (!state.isReadyToStart())
                     return false;
-                Player.this.player.start();
+                GestureInterpreter.this.player.start();
                 setState(PlayerState.PLAYING);
                 return true;
             }
@@ -178,7 +178,7 @@ public class Player implements PlayerProgressSource.Values {
                 if (state.isBusy())
                     return false;
                 setState(PlayerState.SEEKING);
-                player.pause(); // This guarantees that the player goes back to pause after seeking.
+                player.pause(); // This guarantees that the interpreter goes back to pause after seeking.
                 player.seekTo(nextPosition);
                 return true;
             }
