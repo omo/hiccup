@@ -83,15 +83,6 @@ public class Player {
         start();
         seekTo(lastPosition);
         start();
-        // FIXME: This should be post-preparation action.
-        pendingActions.add(new PendingAction() {
-            @Override
-            public boolean run() {
-                progressHandler = new Handler(Looper.myLooper());
-                progressHandler.postDelayed(postProgress, 0);
-                return true;
-            }
-        });
     }
 
     private void consumePendingActionsWhilePossible() {
@@ -127,6 +118,8 @@ public class Player {
     }
 
     public void onPlayerPrepared() {
+        progressHandler = new Handler(Looper.myLooper());
+        progressHandler.postDelayed(postProgress, 0);
         setState(PlayerState.PREPARED);
         consumePendingActionsWhilePossible();
     }
