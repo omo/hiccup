@@ -79,13 +79,19 @@ public class Player {
             }
         });
 
-        this.player.prepareAsync();
-        setState(PlayerState.PREPARING);
-
-        this.progressHandler = new Handler(Looper.myLooper());
-        this.progressHandler.postDelayed(postProgress, 0);
-
-        Toast.makeText(this.context, "last:" + lastPosition, Toast.LENGTH_SHORT).show();
+        prepareStarting();
+        start();
+        seekTo(lastPosition);
+        start();
+        // FIXME: This should be post-preparation action.
+        pendingActions.add(new PendingAction() {
+            @Override
+            public boolean run() {
+                progressHandler = new Handler(Looper.myLooper());
+                progressHandler.postDelayed(postProgress, 0);
+                return true;
+            }
+        });
     }
 
     private void consumePendingActionsWhilePossible() {
@@ -113,6 +119,11 @@ public class Player {
 
     private void onPlayerCompleted() {
         seekTo(player.getDuration() - 1);
+    }
+
+    private void prepareStarting() {
+        this.player.prepareAsync();
+        setState(PlayerState.PREPARING);
     }
 
     public void onPlayerPrepared() {
@@ -181,10 +192,20 @@ public class Player {
         start();
     }
 
-    private void seekTo(int nextPosition) {
-        setState(PlayerState.SEEKING);
-        player.pause(); // This guarantees that the player goes back to pause after seeking.
-        player.seekTo(nextPosition);
+    private void seekTo(final int nextPosition) {
+        pendingActions.add(new PendingAction() {
+            @Override
+            public boolean run() {
+                if (state.isBusy())
+                    return false;
+                setState(PlayerState.SEEKING);
+                player.pause(); // This guarantees that the player goes back to pause after seeking.
+                player.seekTo(nextPosition);
+                return true;
+            }
+        });
+
+        consumePendingActionsWhilePossible();
     }
 
     private void flingBack() {
