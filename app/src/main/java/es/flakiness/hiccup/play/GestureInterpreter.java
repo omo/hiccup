@@ -14,6 +14,7 @@ public class GestureInterpreter {
     private final String TAG = getClass().getSimpleName();
 
     final private Player player;
+    final private int lastPosition;
     private Subscription gestureSubscription;
     private Seeker seeker;
 
@@ -22,10 +23,8 @@ public class GestureInterpreter {
     }
 
     public GestureInterpreter(Context context, Uri uri, int lastPosition) throws IOException {
-        player = new Player(context, uri);
-        player.start();
-        player.seekTo(lastPosition);
-        player.start();
+        this.player = new Player(context, uri);
+        this.lastPosition = lastPosition;
     }
 
     private void hold() {
@@ -80,6 +79,8 @@ public class GestureInterpreter {
     }
 
     public void start() {
+        player.start();
+        player.seekTo(lastPosition);
         player.start();
     }
 
