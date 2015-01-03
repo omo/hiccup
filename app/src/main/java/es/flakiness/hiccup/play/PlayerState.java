@@ -1,17 +1,23 @@
 package es.flakiness.hiccup.play;
 
+// FIXME:
+//   This seems redundant. We should be able to infer some of these from MediaPlayer API.
+//   Probably we could extract the non-policy part of the Player into a class and
+//   give getState() api to that, instead of explicitly storing the state.
 public enum PlayerState {
     PREPARING,
     PREPARED,
     PLAYING,
     PAUSING,
     HOLDING,
-    COMPLETED,
-    SEEKING,
-    SEEKED;
+    SEEKING;
 
     public boolean isReadyToStart() {
-        return this == PREPARED || this == PAUSING || this == HOLDING || this == SEEKED;
+        return !isBusy() && this != PLAYING;
+    }
+
+    public boolean isBusy() {
+        return this == PREPARING || this == SEEKING;
     }
 
     public boolean isPauseable() {

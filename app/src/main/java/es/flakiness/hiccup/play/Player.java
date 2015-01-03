@@ -104,14 +104,15 @@ public class Player {
             return;
         }
 
-        setState(PlayerState.SEEKED);
+        if (player.isPlaying())
+            throw new AssertionError("Tha player should be paused after seeking.");
+        setState(PlayerState.PAUSING);
         consumePendingActionsWhilePossible();
         notifyProgress();
     }
 
     private void onPlayerCompleted() {
-        player.seekTo(player.getDuration() - 1); // FIXME(omo): Shouldn't call seekTo() directly here.
-        pause();
+        seekTo(player.getDuration() - 1);
     }
 
     public void onPlayerPrepared() {
@@ -142,6 +143,7 @@ public class Player {
     }
 
     private void pause() {
+        // FIXME: This should be pend-able.
         if (state.isPauseable()) {
             player.pause();
             setState(PlayerState.PAUSING);
@@ -172,15 +174,17 @@ public class Player {
 
     private void unholdIfHolding() {
         int nextPosition = releaseSeeker();
-        if (state == PlayerState.HOLDING) {
-            if (1000 < Math.abs(nextPosition - player.getCurrentPosition())) {
-                setState(PlayerState.SEEKING);
-                this.player.seekTo(nextPosition);
-            }
+        if (state != PlayerState.HOLDING)
+            return;
+        if (1000 < Math.abs(nextPosition - player.getCurrentPosition()))
+            seekTo(nextPosition);
+        start();
+    }
 
-            notifyProgress();
-            start();
-        }
+    private void seekTo(int nextPosition) {
+        setState(PlayerState.SEEKING);
+        player.pause(); // This guarantees that the player goes back to pause after seeking.
+        player.seekTo(nextPosition);
     }
 
     private void flingBack() {
@@ -191,9 +195,7 @@ public class Player {
 
     private void moveToHead() {
         releaseSeeker();
-        setState(PlayerState.SEEKING);
-        this.player.seekTo(0);
-        notifyProgress();
+        seekTo(0);
         start();
     }
 
