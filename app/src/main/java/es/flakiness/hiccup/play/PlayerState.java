@@ -9,7 +9,7 @@ public enum PlayerState {
     PREPARED,
     PLAYING,
     PAUSING,
-    HOLDING,
+    HOLDING, // FIXME(omo): This shouldn't be here.
     SEEKING;
 
     public boolean isReadyToStart() {
@@ -27,4 +27,6 @@ public enum PlayerState {
     public boolean isHoldable() {
         return this == PLAYING || this == PAUSING;
     }
+
+    public boolean shouldEmit() { return this == PLAYING || this == PAUSING; }
 }

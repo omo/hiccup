@@ -191,7 +191,7 @@ public class Player implements PlayerProgressSource.Values {
 
     @Override
     public PlayerProgress getProgress() {
-        if (state != PlayerState.PLAYING)
+        if (!state.shouldEmit())
             return null;
         return new PlayerProgress(media.getDuration(), media.getCurrentPosition());
     }
