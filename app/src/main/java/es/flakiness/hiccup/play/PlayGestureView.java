@@ -102,7 +102,8 @@ public class PlayGestureView extends View implements GestureDetector.OnGestureLi
     }
 
     private void onPull(MotionEvent event) {
-        float delta = ((float) event.getX() - pressedHere.getX()) / getWidth();
+        float radius = getWidth()*0.5f;
+        float delta = ((float) event.getX() - pressedHere.getX()) / radius;
         gestureSubject.onNext(new PullEvent(delta));
     }
 

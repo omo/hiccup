@@ -10,8 +10,8 @@ import rx.subjects.PublishSubject;
 
 public class Seeker {
 
-    public static final int UPDATE_INTERVAL = 100;
-    public static final int MAX_SEEK_PER_SEC = 10*1000;
+    public static final int UPDATE_INTERVAL = 50;
+    public static final int MAX_SEEK_PER_SEC = 60*1000;
 
     private int duration;
     private int current;
@@ -35,8 +35,13 @@ public class Seeker {
     }
 
     private void updateCurrent() {
-        float velocity = (gradient * MAX_SEEK_PER_SEC) * (UPDATE_INTERVAL / 1000f);
+        float emphasizedGradient = gradient*gradient*(0 <= gradient ? +1 : -1);
+        float velocity = (emphasizedGradient * MAX_SEEK_PER_SEC) * (UPDATE_INTERVAL / 1000f);
         current += velocity;
+        if (duration < current)
+            current = duration;
+        if (current < 0)
+            current = 0;
         currentPositionSubject.onNext(current);
     }
 
