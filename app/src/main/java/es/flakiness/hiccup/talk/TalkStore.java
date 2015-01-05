@@ -34,6 +34,13 @@ public class TalkStore {
         database.delete(Talk.class, null);
     }
 
+    public void remove(List<Long> ids) {
+        // TODO(omo): Should go background.
+        for (Long id : ids) {
+            database.delete(Talk.class, id.longValue());
+        }
+    }
+
     public List<Talk> list() {
         // TODO(omo): Should go background.
         // TODO(omo): Verify the URL and remove the entity if it has gone invalid.

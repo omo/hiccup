@@ -5,7 +5,6 @@ import android.database.DataSetObservable;
 import android.database.DataSetObserver;
 import android.media.MediaMetadataRetriever;
 import android.os.Build;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -142,6 +141,11 @@ public class TalkList implements ListAdapter {
         Talk talk = new Talk(null, event.getUri().toString(), mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE),
                              Long.parseLong(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)));
         store.put(talk);
+        notifyChanged();
+    }
+
+    @Subscribe public void removeTalks(RemoveTalksEvent event) {
+        store.remove(event.getRemovedItems());
         notifyChanged();
     }
 

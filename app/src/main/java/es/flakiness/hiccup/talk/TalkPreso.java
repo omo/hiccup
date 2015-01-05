@@ -16,7 +16,11 @@ public class TalkPreso {
         return entity.title;
     }
 
-    public int getLastPosition() { return entity.lastPosition.intValue(); }
+    public int getLastPosition() {
+        if (null == entity.lastPosition)
+            return 0;
+        return entity.lastPosition.intValue();
+    }
 
     public String getDuration() {
         return new SimpleDateFormat("mm:ss").format(new Date(entity.duration.longValue()));

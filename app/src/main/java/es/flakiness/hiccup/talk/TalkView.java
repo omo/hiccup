@@ -1,6 +1,7 @@
 package es.flakiness.hiccup.talk;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -38,5 +39,11 @@ public class TalkView extends CardView {
         this.preso = preso;
         title.setText(preso.getTitle());
         duration.setText(preso.getDuration());
+    }
+
+    @Override
+    public void setActivated(boolean selected) {
+        super.setActivated(selected);
+        setCardBackgroundColor(isActivated() ? Color.BLUE : Color.WHITE);
     }
 }
