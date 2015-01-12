@@ -30,5 +30,5 @@ public class PlayModule {
     @Provides public Playing getPlaying() { return player; }
     @Provides public GestureInterpreter provideInterpreter() {
         return interpreter;
-    }   
+    }
 }

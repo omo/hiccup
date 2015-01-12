@@ -24,8 +24,10 @@ public class PlayView extends FrameLayout {
 
     @Inject GestureInterpreter interpreter;
     @Inject Playing playing;
+    @Inject PlayClockPreso clockPreso;
     @Inject Bus bus;
     @InjectView(R.id.play_view_debug_text) TextView debugText;
+    @InjectView(R.id.play_view_clock) TextView clockText;
     @InjectView(R.id.play_view_gesture) PlayGestureView gesture;
 
     private String debugStateText = "";
@@ -62,6 +64,8 @@ public class PlayView extends FrameLayout {
         subscriptions = new CompositeSubscription();
 
         interpreter.connectTo(gesture.gestures());
+        clockPreso.connectTo(clockText);
+
         subscriptions.add(interpreter.states().subscribe(new Action1<PlayerState>() {
             @Override
             public void call(PlayerState playerState) {
@@ -69,12 +73,12 @@ public class PlayView extends FrameLayout {
             }
         }));
 
-        subscriptions.add(interpreter.progress().subscribe(new Action1<PlayerProgress>() {
-            @Override
-            public void call(PlayerProgress playerProgress) {
-                onPlayerProgressUpdated(playerProgress);
-            }
-        }));
+        //subscriptions.add(interpreter.progress().subscribe(new Action1<PlayerProgress>() {
+        //    @Override
+        //    public void call(PlayerProgress playerProgress) {
+        //        onPlayerProgressUpdated(playerProgress);
+        //    }
+        //}));
     }
 
     private void onPlayerStateChanged(PlayerState playerState) {
@@ -89,8 +93,8 @@ public class PlayView extends FrameLayout {
     }
 
     private void onPlayerProgressUpdated(PlayerProgress playerProgress) {
-        debugProgressText = format(playerProgress);
-        debugText.setText(debugStateText + ":" + debugProgressText);
+        //debugProgressText = format(playerProgress);
+        //debugText.setText(debugStateText + ":" + debugProgressText);
     }
 
     @Override
@@ -103,7 +107,9 @@ public class PlayView extends FrameLayout {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         bus.post(new LeaveTalkEvent(playing.getUri(), interpreter.getCurrentPosition()));
+        // FIXME: GestureInterpreter and PlayingClockPreso could be Subscriptions.
         interpreter.release();
+        clockPreso.release();
         subscriptions.unsubscribe();
     }
 }
