@@ -22,8 +22,8 @@ import rx.subscriptions.CompositeSubscription;
 
 public class PlayView extends FrameLayout {
 
-    @Inject
-    GestureInterpreter interpreter;
+    @Inject GestureInterpreter interpreter;
+    @Inject Playing playing;
     @Inject Bus bus;
     @InjectView(R.id.play_view_debug_text) TextView debugText;
     @InjectView(R.id.play_view_gesture) PlayGestureView gesture;
@@ -102,7 +102,7 @@ public class PlayView extends FrameLayout {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        bus.post(new LeaveTalkEvent(interpreter.getUri(), interpreter.getCurrentPosition()));
+        bus.post(new LeaveTalkEvent(playing.getUri(), interpreter.getCurrentPosition()));
         interpreter.release();
         subscriptions.unsubscribe();
     }

@@ -18,12 +18,8 @@ public class GestureInterpreter {
     private Subscription gestureSubscription;
     private Seeker seeker;
 
-    public Uri getUri() {
-        return player.getUri();
-    }
-
-    public GestureInterpreter(Context context, Uri uri, int lastPosition) throws IOException {
-        this.player = new Player(context, uri);
+    public GestureInterpreter(Player player, int lastPosition) throws IOException {
+        this.player = player;
         this.lastPosition = lastPosition;
     }
 

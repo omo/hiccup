@@ -15,6 +15,7 @@ import es.flakiness.hiccup.AppModule;
 )
 public class PlayModule {
     private final GestureInterpreter interpreter;
+    private final Player player;
     private Context context;
     private Uri uri;
     private int lastPosition;
@@ -22,11 +23,12 @@ public class PlayModule {
     public PlayModule(Context context, Uri uri, int lastPosition) throws IOException {
         this.context = context;
         this.uri = uri;
-        this.interpreter = new GestureInterpreter(context, uri, lastPosition);
+        this.player = new Player(context, uri);
+        this.interpreter = new GestureInterpreter(player, lastPosition);
     }
 
-    @Provides
-    public GestureInterpreter provideInterpreter() {
+    @Provides public Playing getPlaying() { return player; }
+    @Provides public GestureInterpreter provideInterpreter() {
         return interpreter;
-    }
+    }   
 }

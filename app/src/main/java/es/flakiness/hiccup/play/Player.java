@@ -16,7 +16,7 @@ import rx.subjects.PublishSubject;
 /**
 * Created by morrita on 1/2/15.
 */
-public class Player implements PlayerProgressSource.Values {
+public class Player implements PlayerProgressSource.Values, Playing {
     private interface PendingAction {
         boolean run();
     }
@@ -58,10 +58,6 @@ public class Player implements PlayerProgressSource.Values {
         });
 
         prepareStarting();
-    }
-
-    public Uri getUri() {
-        return uri;
     }
 
     public Context getContext() {
@@ -174,10 +170,17 @@ public class Player implements PlayerProgressSource.Values {
         progressSource.emit(progress);
     }
 
+    @Override
+    public Uri getUri() {
+        return uri;
+    }
+
+    @Override
     public Observable<PlayerProgress> progress() {
         return progressSource.getObservable();
     }
 
+    @Override
     public Observable<PlayerState> states() {
         return stateSubject;
     }
