@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.TextView;
 
 import butterknife.ButterKnife;
@@ -14,6 +15,8 @@ import es.flakiness.hiccup.R;
 public class TalkView extends CardView {
     private TalkPreso preso;
 
+    @InjectView(R.id.talk_view_layout)
+    View layout;
     @InjectView(R.id.talk_title) TextView title;
     @InjectView(R.id.talk_duration) TextView duration;
 
@@ -33,7 +36,8 @@ public class TalkView extends CardView {
     private void initialize() {
         LayoutInflater.from(getContext()).inflate(R.layout.talk_view, this);
         ButterKnife.inject(this);
-    }
+        setContentPadding(10, 10, 10, 10);
+   }
 
     public void setPreso(TalkPreso preso) {
         this.preso = preso;
@@ -44,6 +48,8 @@ public class TalkView extends CardView {
     @Override
     public void setActivated(boolean selected) {
         super.setActivated(selected);
-        setCardBackgroundColor(isActivated() ? Color.BLUE : Color.WHITE);
+        int color = isActivated() ? Color.GRAY : Color.WHITE;
+        setCardBackgroundColor(color);
+        layout.setBackgroundColor(color);
     }
 }
