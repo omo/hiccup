@@ -11,11 +11,25 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
+    signingConfigs {
+        release {
+            def privateProps = new Properties()
+            privateProps.load(project.rootProject.file('private.properties').newDataInputStream())
+
+            storePassword privateProps.getProperty("sign.storePassword")
+            storeFile file(privateProps.getProperty("sign.storeFile"))
+            keyAlias privateProps.getProperty("sign.keyAlias")
+            keyPassword privateProps.getProperty("sign.keyPassword")
+        }
+    }
+
     buildTypes {
         release {
             apply plugin: 'findbugs'
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
 
         debug {
