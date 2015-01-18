@@ -2,6 +2,7 @@ package es.flakiness.hiccup.play;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -31,7 +32,6 @@ public class PlayView extends FrameLayout {
     @InjectView(R.id.play_view_gesture) PlayGestureView gesture;
 
     private String debugStateText = "";
-    private String debugProgressText = "";
     private CompositeSubscription subscriptions;
 
     public PlayView(Context context) {
@@ -73,28 +73,14 @@ public class PlayView extends FrameLayout {
             }
         }));
 
-        //subscriptions.add(interpreter.progress().subscribe(new Action1<PlayerProgress>() {
-        //    @Override
-        //    public void call(PlayerProgress playerProgress) {
-        //        onPlayerProgressUpdated(playerProgress);
-        //    }
-        //}));
+        // https://www.google.com/fonts/specimen/Source+Sans+Pro
+        Typeface tf = Typeface.createFromAsset(getContext().getAssets(), "fonts/SourceSansPro-Light.ttf");
+        clockText.setTypeface(tf);
     }
 
     private void onPlayerStateChanged(PlayerState playerState) {
         debugStateText = playerState.toString();
-        debugText.setText(debugStateText + ":" + debugProgressText);
-    }
-
-    private String format(PlayerProgress progress) {
-        int second = (progress.getCurrent()/1000)%60;
-        int minute = (progress.getCurrent()/(60*1000))%60;
-        return String.format("%02d:%02d", minute, second);
-    }
-
-    private void onPlayerProgressUpdated(PlayerProgress playerProgress) {
-        //debugProgressText = format(playerProgress);
-        //debugText.setText(debugStateText + ":" + debugProgressText);
+        debugText.setText(debugStateText);
     }
 
     @Override
