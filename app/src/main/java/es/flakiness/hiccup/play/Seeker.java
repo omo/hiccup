@@ -1,5 +1,7 @@
 package es.flakiness.hiccup.play;
 
+import android.view.Choreographer;
+
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
@@ -10,7 +12,6 @@ import rx.subjects.PublishSubject;
 
 public class Seeker {
 
-    public static final int UPDATE_INTERVAL = 50;
     public static final int MAX_SEEK_PER_SEC = 60*1000;
 
     private int duration;
@@ -19,6 +20,16 @@ public class Seeker {
     private Subscription intervalSubscription;
     private PublishSubject<Integer> currentPositionSubject = PublishSubject.create();
 
+    private long lastNano = System.nanoTime();
+    private Choreographer choreographer;
+    // FIXME: Could be abstracted as an Observable.
+    private Choreographer.FrameCallback frameCallback = new Choreographer.FrameCallback() {
+        @Override
+        public void doFrame(long frameTimeNanos) {
+            updateCurrent(frameTimeNanos);
+        }
+    };
+
     public Seeker(PlayerProgress progress) {
         this(progress.getDuration(), progress.getCurrent());
     }
@@ -26,28 +37,30 @@ public class Seeker {
     public Seeker(int duration, int current) {
         this.duration = duration;
         this.current = current;
-        this.intervalSubscription = Observable.interval(UPDATE_INTERVAL, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread()).subscribe(new Action1<Long>() {
-            @Override
-            public void call(Long aLong) {
-                updateCurrent();
-            }
-        });
+        this.choreographer = Choreographer.getInstance();
+
+        updateCurrent(System.nanoTime());
     }
 
-    private void updateCurrent() {
+    private void updateCurrent(long currentNano) {
+        float delta = (float) (currentNano - lastNano) / 1000000000f;
+        lastNano = currentNano;
+
         float emphasizedGradient = gradient*gradient*(0 <= gradient ? +1 : -1);
-        float velocity = (emphasizedGradient * MAX_SEEK_PER_SEC) * (UPDATE_INTERVAL / 1000f);
+        float velocity = (emphasizedGradient * MAX_SEEK_PER_SEC) * delta;
         current += velocity;
         if (duration < current)
             current = duration;
         if (current < 0)
             current = 0;
         currentPositionSubject.onNext(current);
+        if (null != choreographer)
+            choreographer.postFrameCallback(frameCallback);
     }
 
     public int release() {
         currentPositionSubject.onCompleted();
-        intervalSubscription.unsubscribe();
+        choreographer  = null;
         return current;
     }
 
