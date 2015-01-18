@@ -15,9 +15,15 @@
             android:id="@+id/play_view_clock"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="120dp"
+            android:textSize="60dp"
             android:gravity="center"
             android:text="XX:YY" />
+        <es.flakiness.hiccup.play.PlayBarView
+            android:id="@+id/play_view_bar"
+            android:background="#cccccc"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_margin="10dp" />
     </LinearLayout>
     <es.flakiness.hiccup.play.PlayGestureView
         android:id="@+id/play_view_gesture"

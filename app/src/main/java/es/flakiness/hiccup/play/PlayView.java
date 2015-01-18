@@ -30,6 +30,7 @@ public class PlayView extends FrameLayout {
     @InjectView(R.id.play_view_debug_text) TextView debugText;
     @InjectView(R.id.play_view_clock) TextView clockText;
     @InjectView(R.id.play_view_gesture) PlayGestureView gesture;
+    @InjectView(R.id.play_view_bar) PlayBarView barView;
 
     private String debugStateText = "";
     private CompositeSubscription subscriptions;
@@ -64,7 +65,7 @@ public class PlayView extends FrameLayout {
         subscriptions = new CompositeSubscription();
 
         interpreter.connectTo(gesture.gestures());
-        clockPreso.connectTo(clockText);
+        clockPreso.connectTo(clockText, barView);
 
         subscriptions.add(interpreter.states().subscribe(new Action1<PlayerState>() {
             @Override
