@@ -15,3 +15,17 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+# For Butterknife
+-dontwarn butterknife.internal.**
+-keep class **$$ViewInjector { *; }
+-keepnames class * { @butterknife.InjectView *;}
+
+# Dagger
+-dontwarn dagger.internal.codegen.**
+-dontobfuscate
+-keep class es.flakiness.**  { *; }
+
+# RxJava
+-dontwarn rx.internal.util.unsafe.**
+#-keep class rx.** { *; }
