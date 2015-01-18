@@ -35,9 +35,10 @@ public class PlayBarView extends View {
     }
 
     private void initialize() {
-        barBackgroundPaint.setColor(0xff222222);
+        // FIXME: These colors should be resources
+        barBackgroundPaint.setColor(0xff222266);
         barBackgroundPaint.setStyle(Paint.Style.FILL);
-        barForegroundPaint.setColor(0xffeeeeee);
+        barForegroundPaint.setColor(0xffeeeebb);
         barForegroundPaint.setStyle(Paint.Style.FILL);
     }
 

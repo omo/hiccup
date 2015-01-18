@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
+    android:background="#dddddd"
     android:layout_height="match_parent">
     <TextView
         android:id="@+id/play_view_debug_text"
@@ -11,19 +12,21 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+        <es.flakiness.hiccup.play.PlayBarView
+            android:id="@+id/play_view_bar"
+            android:background="#ffffff"
+            android:layout_margin="0dp"
+            android:paddingBottom="1dp"
+            android:layout_width="match_parent"
+            android:layout_height="5dp" />
         <TextView
             android:id="@+id/play_view_clock"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="#333333"
             android:textSize="60dp"
             android:gravity="center"
             android:text="XX:YY" />
-        <es.flakiness.hiccup.play.PlayBarView
-            android:id="@+id/play_view_bar"
-            android:background="#cccccc"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_margin="10dp" />
     </LinearLayout>
     <es.flakiness.hiccup.play.PlayGestureView
         android:id="@+id/play_view_gesture"
