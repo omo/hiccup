@@ -1,5 +1,6 @@
 package es.flakiness.hiccup.talk;
 
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
@@ -28,32 +29,11 @@ public class TalkStore {
         changes.onNext(this);
     }
 
-    public void putDebugInstance() {
-        Talk t = new Talk(null, "uri://debug/", "Hello Debug Talk!", new Long(0));
-        database.put(t);
-        notifyChanged();
-    }
-
     public Observable<TalkStore> changes() { return changes; }
 
     private void put(Talk talk) {
         // TODO(omo): Should go background.
         database.put(talk);
-        notifyChanged();
-    }
-
-    private void clear() {
-        // TODO(omo): Should go background.
-        database.delete(Talk.class, null);
-        notifyChanged();
-    }
-
-    private void remove(List<Long> ids) {
-        // TODO(omo): Should go background.
-        for (Long id : ids) {
-            database.delete(Talk.class, id.longValue());
-        }
-
         notifyChanged();
     }
 
@@ -71,30 +51,40 @@ public class TalkStore {
         notifyChanged();
     }
 
-    public void addDebugTalk(AddDebugTalkEvent event) {
-        putDebugInstance();
+    public void addDebugTalk() {
+        // TODO(omo): Should go background.
+        Talk t = new Talk(null, "uri://debug/", "Hello Debug Talk!", new Long(0));
+        database.put(t);
+        notifyChanged();
     }
 
-    public void clearTalk(ClearTalkEvent event) {
-        clear();
+    public void clearTalk() {
+        // TODO(omo): Should go background.
+        database.delete(Talk.class, null);
+        notifyChanged();
     }
 
-    public void addTalk(AddTalkEvent event) {
+    public void addTalk(Context context, Uri uri) {
         // TODO(omo): Should go background.
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        mmr.setDataSource(event.getContext(), event.getUri());
+        mmr.setDataSource(context, uri);
 
         if (Build.VERSION.SDK_INT >= 19) {
-            event.getContext().getContentResolver().takePersistableUriPermission(event.getUri(), Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            context.getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
 
-        Talk talk = new Talk(null, event.getUri().toString(), mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE),
+        Talk talk = new Talk(null, uri.toString(), mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE),
                 Long.parseLong(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)));
         put(talk);
     }
 
-    public void removeTalks(RemoveTalksEvent event) {
-        remove(event.getRemovedItems());
+    public void removeTalks(List<Long> ids) {
+        // TODO(omo): Should go background.
+        for (Long id : ids) {
+            database.delete(Talk.class, id.longValue());
+        }
+
+        notifyChanged();
     }
 
 }

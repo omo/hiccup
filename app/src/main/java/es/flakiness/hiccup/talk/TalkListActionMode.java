@@ -48,7 +48,7 @@ public class TalkListActionMode implements ActionMode.Callback, AdapterView.OnIt
         ArrayList<Long> removedItems = new ArrayList();
         for (Long i : parent.getCheckedItemIds())
             removedItems.add(i);
-        store.removeTalks(new RemoveTalksEvent(removedItems));
+        store.removeTalks(removedItems);
     }
 
     public void viewWasSelectedWhileActive(View view, int position) {

@@ -12,9 +12,6 @@ import com.squareup.otto.Subscribe;
 import javax.inject.Inject;
 
 import es.flakiness.hiccup.play.PlayActivity;
-import es.flakiness.hiccup.talk.AddDebugTalkEvent;
-import es.flakiness.hiccup.talk.AddTalkEvent;
-import es.flakiness.hiccup.talk.ClearTalkEvent;
 import es.flakiness.hiccup.talk.TalkStore;
 
 
@@ -53,7 +50,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1 && resultCode == RESULT_OK) {
-            store.addTalk(new AddTalkEvent(this.getApplicationContext(), data));
+            store.addTalk(this.getApplicationContext(), data.getData());
         }
     }
 
@@ -61,10 +58,10 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add_debug_item:
-                store.addDebugTalk(new AddDebugTalkEvent());
+                store.addDebugTalk();
                 return true;
             case R.id.action_clear_talk_list:
-                store.clearTalk(new ClearTalkEvent());
+                store.clearTalk();
                 return true;
             case R.id.action_add_talk:
                 requestAddTalk();
