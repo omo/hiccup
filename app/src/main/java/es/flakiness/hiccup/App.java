@@ -6,7 +6,7 @@ import android.content.Context;
 
 import dagger.ObjectGraph;
 
-public class App extends Application {
+public class App extends Application implements InjectionScope {
 
     private ObjectGraph graph;
 
@@ -16,19 +16,8 @@ public class App extends Application {
         this.graph = ObjectGraph.create(new AppModule(this));
     }
 
-    public static void inject(Context appContext, Object object) {
-        getGraph((App) appContext).inject(object);
-    }
-
-    public static <T> T get(Context appContext, Class<T> clazz) {
-        return getGraph((App) appContext).get(clazz);
-    }
-
-    public static ObjectGraph plus(Context appContext, Object module) {
-        return getGraph((App) appContext).plus(module);
-    }
-
-    private static ObjectGraph getGraph(App appContext) {
-        return ((App)appContext).graph;
+    @Override
+    public ObjectGraph getGraph() {
+        return graph;
     }
 }

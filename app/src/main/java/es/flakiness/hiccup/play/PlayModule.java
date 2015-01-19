@@ -7,8 +7,8 @@ import java.io.IOException;
 
 import dagger.Module;
 import dagger.Provides;
-import es.flakiness.hiccup.App;
 import es.flakiness.hiccup.AppModule;
+import es.flakiness.hiccup.Injections;
 import es.flakiness.hiccup.talk.TalkStore;
 import rx.subscriptions.CompositeSubscription;
 
@@ -30,8 +30,8 @@ public class PlayModule {
         this.subscriptions.add(this.interpreter);
         this.preso = new PlayClockPreso(this.interpreter.getSeeker());
         this.subscriptions.add(this.preso);
-        // This sucks!
-        this.session = new PlaySession(uri, interpreter.getSeeker(), App.get(context.getApplicationContext(), TalkStore.class));
+        // This sucks :-(
+        this.session = new PlaySession(uri, interpreter.getSeeker(), Injections.get(context.getApplicationContext(), TalkStore.class));
         this.subscriptions.add(this.session);
     }
 

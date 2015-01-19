@@ -10,8 +10,8 @@ import android.view.WindowManager;
 import java.io.IOException;
 
 import dagger.ObjectGraph;
-import es.flakiness.hiccup.App;
 import es.flakiness.hiccup.InjectionScope;
+import es.flakiness.hiccup.Injections;
 import es.flakiness.hiccup.R;
 
 
@@ -30,7 +30,7 @@ public class PlayActivity extends Activity implements InjectionScope {
             Uri uri = (Uri) getIntent().getParcelableExtra(EXTRA_KEY_URL);
             int lastPosition = getIntent().getIntExtra(EXTRA_KEY_LAST_POSITION, 0);
             module = new PlayModule(this, uri, lastPosition);
-            graph = App.plus(getApplicationContext(), module);
+            graph = Injections.plus(getApplicationContext(), module);
         } catch (IOException e) {
             // TODO(omo): handle Gracefully.
             throw new RuntimeException(e);

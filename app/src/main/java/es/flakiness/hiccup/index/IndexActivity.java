@@ -12,8 +12,8 @@ import com.squareup.otto.Subscribe;
 import javax.inject.Inject;
 
 import dagger.ObjectGraph;
-import es.flakiness.hiccup.App;
 import es.flakiness.hiccup.InjectionScope;
+import es.flakiness.hiccup.Injections;
 import es.flakiness.hiccup.talk.PlayTalkEvent;
 import es.flakiness.hiccup.R;
 import es.flakiness.hiccup.play.PlayActivity;
@@ -30,7 +30,7 @@ public class IndexActivity extends Activity implements InjectionScope {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        graph = App.plus(getApplicationContext(), new IndexModule());
+        graph = Injections.plus(getApplicationContext(), new IndexModule());
         graph.inject(this);
         bus.register(this);
 
