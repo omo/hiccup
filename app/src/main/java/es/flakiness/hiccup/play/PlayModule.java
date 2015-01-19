@@ -30,7 +30,7 @@ public class PlayModule {
         this.subscriptions.add(this.player);
         this.interpreter = new GestureInterpreter(player, lastPosition);
         this.subscriptions.add(this.interpreter);
-        this.preso = new PlayClockPreso(this.interpreter.getPlayingWithSeek());
+        this.preso = new PlayClockPreso(this.interpreter.getSeeker());
         this.subscriptions.add(this.preso);
     }
 
@@ -40,7 +40,7 @@ public class PlayModule {
 
     @Provides public Uri provideUri() { return uri; }
     @Provides public PlayClockPreso providePreso() { return preso; }
-    @Provides public Playing providePlaying() { return this.interpreter.getPlayingWithSeek(); }
+    @Provides public Playing providePlaying() { return this.interpreter.getSeeker(); }
     @Provides public GestureInterpreter provideInterpreter() {
         return interpreter;
     }

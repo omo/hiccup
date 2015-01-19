@@ -1,81 +1,91 @@
 package es.flakiness.hiccup.play;
 
-import android.view.Choreographer;
-
-import java.util.concurrent.TimeUnit;
-
 import rx.Observable;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.subjects.PublishSubject;
+import rx.subscriptions.CompositeSubscription;
 
-public class Seeker {
+class Seeker implements Playing, Subscription {
+    private final PublishSubject<PlayerProgress> progress = PublishSubject.create();
+    private final PublishSubject<PlayerState> states = PublishSubject.create();
+    private final CompositeSubscription subscriptions = new CompositeSubscription();
+    private SeekSession session;
+    private Subscription sessionSubscription;
 
-    public static final int MAX_SEEK_PER_SEC = 60*1000;
+    public Seeker(Playing playing) {
 
-    private int duration;
-    private int current;
-    private float gradient;
-    private PublishSubject<Integer> currentPositionSubject = PublishSubject.create();
+        subscriptions.add(playing.progress().subscribe(new Action1<PlayerProgress>() {
+            @Override
+            public void call(PlayerProgress playerProgress) {
+                if (!isSeeking())
+                    progress.onNext(playerProgress);
+            }
+        }));
 
-    private long lastNano = System.nanoTime();
-    private Choreographer choreographer;
-    // FIXME: Could be abstracted as an Observable.
-    private Choreographer.FrameCallback frameCallback = new Choreographer.FrameCallback() {
-        @Override
-        public void doFrame(long frameTimeNanos) {
-            updateCurrent(frameTimeNanos);
-        }
-    };
-
-    public Seeker(PlayerProgress progress) {
-        this(progress.getDuration(), progress.getCurrent());
+        subscriptions.add(playing.states().subscribe(new Action1<PlayerState>() {
+            @Override
+            public void call(PlayerState playerState) {
+                if (!isSeeking())
+                    states.onNext(playerState);
+            }
+        }));
     }
 
-    public Seeker(int duration, int current) {
-        this.duration = duration;
-        this.current = current;
-        this.choreographer = Choreographer.getInstance();
-
-        updateCurrent(System.nanoTime());
+    @Override
+    public Observable<PlayerProgress> progress() {
+        return this.progress;
     }
 
-    private void updateCurrent(long currentNano) {
-        float delta = (float) (currentNano - lastNano) / 1000000000f;
-        lastNano = currentNano;
-
-        float emphasizedGradient = gradient*gradient*(0 <= gradient ? +1 : -1);
-        float velocity = (emphasizedGradient * MAX_SEEK_PER_SEC) * delta;
-        current += velocity;
-        if (duration < current)
-            current = duration;
-        if (current < 0)
-            current = 0;
-        currentPositionSubject.onNext(current);
-        if (null != choreographer)
-            choreographer.postFrameCallback(frameCallback);
+    @Override
+    public Observable<PlayerState> states() {
+        return this.states;
     }
 
-    public int release() {
-        currentPositionSubject.onCompleted();
-        choreographer  = null;
-        return current;
+    public void startSeeking(PlayerProgress current, PlayerState nextState) {
+        if (isSeeking())
+            throw new AssertionError();
+        session = new SeekSession(current);
+        sessionSubscription = session.currentPositions().subscribe(new Action1<Integer>() {
+            @Override
+            public void call(Integer integer) {
+                progress.onNext(new PlayerProgress(session.getDuration(), session.getCurrent()));
+            }
+        });
+
+        states.onNext(nextState);
+    }
+
+    public int endSeeking() {
+        sessionSubscription.unsubscribe();
+        sessionSubscription = null;
+        int position = session.release();
+        session = null;
+        return position;
     }
 
     public void setGradient(float gradient) {
-        this.gradient = gradient;
+        session.setGradient(gradient);
     }
 
-    public int getDuration() {
-        return duration;
+    public boolean isSeeking() {
+        return null != sessionSubscription;
     }
 
-    public int getCurrent() {
-        return current;
+    @Override
+    public void unsubscribe() {
+        if (sessionSubscription != null) {
+            sessionSubscription.unsubscribe();
+            sessionSubscription = null;
+        }
+
+        subscriptions.unsubscribe();
+        progress.onCompleted();
+        states.onCompleted();
     }
 
-    Observable<Integer> currentPositions() {
-        return currentPositionSubject;
+    @Override
+    public boolean isUnsubscribed() {
+        return subscriptions.isUnsubscribed();
     }
 }

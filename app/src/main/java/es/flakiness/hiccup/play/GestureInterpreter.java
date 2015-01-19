@@ -14,43 +14,31 @@ public class GestureInterpreter implements Subscription {
 
     final private Player player;
     final private int lastPosition;
-    final private PlayingWithSeek playingWithSeek;
+    final private Seeker seeker;
     final private CompositeSubscription subscriptions = new CompositeSubscription();
-    private Subscription gestureSubscription;
-    private Seeker seeker;
 
     public GestureInterpreter(Player player, int lastPosition) throws IOException {
         this.player = player;
         this.lastPosition = lastPosition;
-        this.playingWithSeek = new PlayingWithSeek(player);
-        this.subscriptions.add(this.playingWithSeek);
+        this.seeker = new Seeker(player);
+        this.subscriptions.add(this.seeker);
     }
 
-    public PlayingWithSeek getPlayingWithSeek() {
-        return playingWithSeek;
+    public Seeker getSeeker() {
+        return seeker;
     }
 
     private void hold() {
         if (player.getState().isHoldable()) {
-            seeker = new Seeker(player.getProgress());
-            playingWithSeek.startSeeking(seeker, PlayerState.HOLDING);
+            seeker.startSeeking(player.getProgress(), PlayerState.HOLDING);
             player.pause();
         }
     }
 
-    private int endSeeking() {
-        if (null == seeker)
-            return 0;
-        int position = seeker.release();
-        seeker = null;
-        playingWithSeek.endSeeking();
-        return position;
-    }
-
     private void unholdIfHolding() {
-        if (!playingWithSeek.isSeeking())
+        if (!seeker.isSeeking())
             return;
-        int nextPosition = endSeeking();
+        int nextPosition = seeker.endSeeking();
         player.seekTo(nextPosition);
         player.start();
     }
@@ -63,7 +51,8 @@ public class GestureInterpreter implements Subscription {
     }
 
     private void moveToHead() {
-        endSeeking();
+        if (seeker.isSeeking())
+            seeker.endSeeking();
         player.seekTo(0);
         player.start();
     }
