@@ -8,14 +8,17 @@ import java.io.IOException;
 import dagger.Module;
 import dagger.Provides;
 import es.flakiness.hiccup.AppModule;
+import rx.subscriptions.CompositeSubscription;
 
 @Module(
         injects = { PlayView.class },
         addsTo = AppModule.class
 )
 public class PlayModule {
+    private final CompositeSubscription subscriptions = new CompositeSubscription();
     private final GestureInterpreter interpreter;
     private final Player player;
+    private final PlayClockPreso preso;
     private Context context;
     private Uri uri;
     private int lastPosition;
@@ -24,9 +27,18 @@ public class PlayModule {
         this.context = context;
         this.uri = uri;
         this.player = new Player(context, uri);
+        this.subscriptions.add(this.player);
         this.interpreter = new GestureInterpreter(player, lastPosition);
+        this.subscriptions.add(this.interpreter);
+        this.preso = new PlayClockPreso(player);
+        this.subscriptions.add(this.preso);
     }
 
+    public void release() {
+        this.subscriptions.unsubscribe();
+    }
+
+    @Provides public PlayClockPreso providePreso() { return preso; }
     @Provides public Playing getPlaying() { return player; }
     @Provides public GestureInterpreter provideInterpreter() {
         return interpreter;

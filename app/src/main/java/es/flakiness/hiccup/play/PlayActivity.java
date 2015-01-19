@@ -22,6 +22,7 @@ public class PlayActivity extends Activity {
     public static final String EXTRA_KEY_LAST_POSITION = "PLAY_LAST_POSITION";
 
     private ObjectGraph graph;
+    private PlayModule module;
 
     @InjectView(R.id.play_view) PlayView playView;
 
@@ -31,7 +32,8 @@ public class PlayActivity extends Activity {
         try {
             Uri uri = (Uri) getIntent().getParcelableExtra(EXTRA_KEY_URL);
             int lastPosition = getIntent().getIntExtra(EXTRA_KEY_LAST_POSITION, 0);
-            graph = App.plus(getApplicationContext(), new PlayModule(this, uri, lastPosition));
+            module = new PlayModule(this, uri, lastPosition);
+            graph = App.plus(getApplicationContext(), module);
         } catch (IOException e) {
             // TODO(omo): handle Gracefully.
             throw new RuntimeException(e);
@@ -44,6 +46,12 @@ public class PlayActivity extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         ButterKnife.inject(this);
         playView.injectFrom(graph);
+    }
+
+    @Override
+    protected void onDestroy() {
+        module.release();
+        super.onDestroy();
     }
 
     @Override

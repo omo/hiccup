@@ -4,12 +4,13 @@ import android.widget.TextView;
 
 import javax.inject.Inject;
 
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
 
-public class PlayClockPreso {
+public class PlayClockPreso implements Subscription {
 
     private final Playing playing;
     private final PublishSubject<String> clockTexts = PublishSubject.create();
@@ -47,14 +48,20 @@ public class PlayClockPreso {
         }));
     }
 
-    public void release() {
-        clockTexts.onCompleted();
-        subscriptions.unsubscribe();
-    }
-
     private String toClockText(PlayerProgress progress) {
         int second = (progress.getCurrent()/1000)%60;
         int minute = (progress.getCurrent()/(60*1000))%60;
         return String.format("%02d:%02d", minute, second);
+    }
+
+    @Override
+    public void unsubscribe() {
+        clockTexts.onCompleted();
+        subscriptions.unsubscribe();
+    }
+
+    @Override
+    public boolean isUnsubscribed() {
+        return subscriptions.isUnsubscribed();
     }
 }

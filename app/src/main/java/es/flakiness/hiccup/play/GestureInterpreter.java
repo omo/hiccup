@@ -1,20 +1,19 @@
 package es.flakiness.hiccup.play;
 
-import android.content.Context;
-import android.net.Uri;
-
 import java.io.IOException;
 
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Action1;
+import rx.subscriptions.CompositeSubscription;
 
 
-public class GestureInterpreter {
+public class GestureInterpreter implements Subscription {
     private final String TAG = getClass().getSimpleName();
 
     final private Player player;
     final private int lastPosition;
+    final private CompositeSubscription subscriptions = new CompositeSubscription();
     private Subscription gestureSubscription;
     private Seeker seeker;
 
@@ -80,11 +79,6 @@ public class GestureInterpreter {
         player.start();
     }
 
-    public void release() {
-        player.release();
-        gestureSubscription.unsubscribe();
-    }
-
     public Observable<PlayerProgress> progress() {
         return player.progress();
     }
@@ -98,7 +92,7 @@ public class GestureInterpreter {
     }
 
     public void connectTo(Observable<GestureEvent> gestures) {
-        gestureSubscription = gestures.subscribe(new Action1<GestureEvent>() {
+        subscriptions.add(gestures.subscribe(new Action1<GestureEvent>() {
             @Override
             public void call(GestureEvent gestureEvent) {
                 switch (gestureEvent.getType()) {
@@ -119,6 +113,16 @@ public class GestureInterpreter {
                         break;
                 }
             }
-        });
+        }));
+    }
+
+    @Override
+    public void unsubscribe() {
+        subscriptions.unsubscribe();
+    }
+
+    @Override
+    public boolean isUnsubscribed() {
+        return subscriptions.isUnsubscribed();
     }
 }

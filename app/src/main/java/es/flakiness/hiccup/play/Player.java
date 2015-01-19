@@ -11,19 +11,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import rx.Observable;
+import rx.Subscription;
 import rx.subjects.PublishSubject;
 
-/**
-* Created by morrita on 1/2/15.
-*/
-public class Player implements PlayerProgressSource.Values, Playing {
+public class Player implements PlayerProgressSource.Values, Playing, Subscription {
+
     private interface PendingAction {
         boolean run();
     }
 
     private final Uri uri;
     private final Context context;
-    private final MediaPlayer media;
+    private MediaPlayer media;
     private List<PendingAction> pendingActions = new ArrayList(); // FIXME: Could be different class.
     private PlayerProgressSource progressSource;
     private PublishSubject<PlayerState> stateSubject = PublishSubject.create();
@@ -185,13 +184,6 @@ public class Player implements PlayerProgressSource.Values, Playing {
         return stateSubject;
     }
 
-    public void release() {
-        media.stop();
-        media.release();
-        progressSource.stop();
-        stateSubject.onCompleted();
-    }
-
     @Override
     public PlayerProgress getProgress() {
         if (!state.shouldEmit())
@@ -202,5 +194,19 @@ public class Player implements PlayerProgressSource.Values, Playing {
     @Override
     public int getCurrentPosition() {
         return media.getCurrentPosition();
+    }
+
+    @Override
+    public void unsubscribe() {
+        media.stop();
+        media.release();
+        media = null;
+        progressSource.stop();
+        stateSubject.onCompleted();
+    }
+
+    @Override
+    public boolean isUnsubscribed() {
+        return media != null;
     }
 }

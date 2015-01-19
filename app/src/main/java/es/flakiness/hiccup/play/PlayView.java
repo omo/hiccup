@@ -32,7 +32,6 @@ public class PlayView extends FrameLayout {
     @InjectView(R.id.play_view_gesture) PlayGestureView gesture;
     @InjectView(R.id.play_view_bar) PlayBarView barView;
 
-    private String debugStateText = "";
     private CompositeSubscription subscriptions;
 
     public PlayView(Context context) {
@@ -70,18 +69,13 @@ public class PlayView extends FrameLayout {
         subscriptions.add(interpreter.states().subscribe(new Action1<PlayerState>() {
             @Override
             public void call(PlayerState playerState) {
-                onPlayerStateChanged(playerState);
+                debugText.setText(playerState.toString());
             }
         }));
 
         // https://www.google.com/fonts/specimen/Source+Sans+Pro
         Typeface tf = Typeface.createFromAsset(getContext().getAssets(), "fonts/SourceSansPro-Light.ttf");
         clockText.setTypeface(tf);
-    }
-
-    private void onPlayerStateChanged(PlayerState playerState) {
-        debugStateText = playerState.toString();
-        debugText.setText(debugStateText);
     }
 
     @Override
@@ -94,9 +88,6 @@ public class PlayView extends FrameLayout {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         bus.post(new LeaveTalkEvent(playing.getUri(), interpreter.getCurrentPosition()));
-        // FIXME: GestureInterpreter and PlayingClockPreso could be Subscriptions.
-        interpreter.release();
-        clockPreso.release();
         subscriptions.unsubscribe();
     }
 }
