@@ -38,6 +38,7 @@ public class PlayModule {
         this.subscriptions.unsubscribe();
     }
 
+    @Provides public Uri provideUri() { return uri; }
     @Provides public PlayClockPreso providePreso() { return preso; }
     @Provides public Playing getPlaying() { return player; }
     @Provides public GestureInterpreter provideInterpreter() {

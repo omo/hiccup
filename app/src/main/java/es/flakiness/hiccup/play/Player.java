@@ -63,10 +63,6 @@ public class Player implements PlayerProgressSource.Values, Playing, Subscriptio
         return context;
     }
 
-    public PlayerState getState() {
-        return state;
-    }
-
     private void consumePendingActionsWhilePossible() {
         while (!pendingActions.isEmpty()) {
             boolean done = pendingActions.get(0).run();
@@ -87,7 +83,7 @@ public class Player implements PlayerProgressSource.Values, Playing, Subscriptio
             throw new AssertionError("The GestureInterpreter should be paused after seeking.");
         setState(PlayerState.PAUSING);
         consumePendingActionsWhilePossible();
-        progressSource.emit();
+        progressSource.emit(getProgress());
     }
 
     private void onPlayerCompleted() {
@@ -170,11 +166,6 @@ public class Player implements PlayerProgressSource.Values, Playing, Subscriptio
     }
 
     @Override
-    public Uri getUri() {
-        return uri;
-    }
-
-    @Override
     public Observable<PlayerProgress> progress() {
         return progressSource.getObservable();
     }
@@ -186,14 +177,12 @@ public class Player implements PlayerProgressSource.Values, Playing, Subscriptio
 
     @Override
     public PlayerProgress getProgress() {
-        if (!state.shouldEmit())
-            return null;
         return new PlayerProgress(media.getDuration(), media.getCurrentPosition());
     }
 
     @Override
-    public int getCurrentPosition() {
-        return media.getCurrentPosition();
+    public PlayerState getState() {
+        return state;
     }
 
     @Override
@@ -207,6 +196,6 @@ public class Player implements PlayerProgressSource.Values, Playing, Subscriptio
 
     @Override
     public boolean isUnsubscribed() {
-        return media != null;
+        return media == null;
     }
 }

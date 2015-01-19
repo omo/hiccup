@@ -7,13 +7,13 @@ import javax.inject.Inject;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
 
 public class PlayClockPreso implements Subscription {
 
     private final Playing playing;
-    private final PublishSubject<String> clockTexts = PublishSubject.create();
     private final CompositeSubscription subscriptions = new CompositeSubscription();
 
     @Inject
@@ -22,16 +22,12 @@ public class PlayClockPreso implements Subscription {
     }
 
     public void connectTo(final TextView textView, final PlayBarView barView) {
-        // XXX: We don't need |clockTexts|. Just could be just a map of the original source.
-        subscriptions.add(this.playing.progress().subscribe(new Action1<PlayerProgress>() {
+        subscriptions.add(this.playing.progress().map(new Func1<PlayerProgress, String>() {
             @Override
-            public void call(PlayerProgress playerProgress) {
-                clockTexts.onNext(toClockText(playerProgress));
+            public String call(PlayerProgress playerProgress) {
+                return toClockText(playerProgress);
             }
-        }));
-
-        // XXX: This should return subscriptions instead of add it to this.
-        subscriptions.add(clockTexts.distinctUntilChanged().subscribe(new Action1<String>() {
+        }).distinctUntilChanged().subscribe(new Action1<String>() {
             @Override
             public void call(String s) {
                 textView.setText(s);
@@ -56,7 +52,6 @@ public class PlayClockPreso implements Subscription {
 
     @Override
     public void unsubscribe() {
-        clockTexts.onCompleted();
         subscriptions.unsubscribe();
     }
 

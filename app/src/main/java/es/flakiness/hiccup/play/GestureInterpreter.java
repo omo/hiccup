@@ -79,18 +79,6 @@ public class GestureInterpreter implements Subscription {
         player.start();
     }
 
-    public Observable<PlayerProgress> progress() {
-        return player.progress();
-    }
-
-    public Observable<PlayerState> states() {
-        return player.states();
-    }
-
-    public int getCurrentPosition() {
-        return player.getCurrentPosition();
-    }
-
     public void connectTo(Observable<GestureEvent> gestures) {
         subscriptions.add(gestures.subscribe(new Action1<GestureEvent>() {
             @Override

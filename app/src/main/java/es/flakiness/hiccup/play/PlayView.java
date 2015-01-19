@@ -3,6 +3,7 @@ package es.flakiness.hiccup.play;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -26,12 +27,14 @@ public class PlayView extends FrameLayout {
     @Inject GestureInterpreter interpreter;
     @Inject Playing playing;
     @Inject PlayClockPreso clockPreso;
+    @Inject Uri uri;
     @Inject Bus bus;
     @InjectView(R.id.play_view_debug_text) TextView debugText;
     @InjectView(R.id.play_view_clock) TextView clockText;
     @InjectView(R.id.play_view_gesture) PlayGestureView gesture;
     @InjectView(R.id.play_view_bar) PlayBarView barView;
 
+    private PlayerProgress lastProgress = new PlayerProgress(0, 0);
     private CompositeSubscription subscriptions;
 
     public PlayView(Context context) {
@@ -59,6 +62,7 @@ public class PlayView extends FrameLayout {
         ButterKnife.inject(this);
     }
 
+    // FIXME: It is confusing to have two initialization code: injectFrom() and onAttachedToWindow()
     public void injectFrom(ObjectGraph graph) {
         graph.inject(this);
         subscriptions = new CompositeSubscription();
@@ -66,10 +70,17 @@ public class PlayView extends FrameLayout {
         interpreter.connectTo(gesture.gestures());
         clockPreso.connectTo(clockText, barView);
 
-        subscriptions.add(interpreter.states().subscribe(new Action1<PlayerState>() {
+        subscriptions.add(playing.states().subscribe(new Action1<PlayerState>() {
             @Override
             public void call(PlayerState playerState) {
                 debugText.setText(playerState.toString());
+            }
+        }));
+
+        subscriptions.add(playing.progress().subscribe(new Action1<PlayerProgress>() {
+            @Override
+            public void call(PlayerProgress playerProgress) {
+                lastProgress = playerProgress;
             }
         }));
 
@@ -87,7 +98,7 @@ public class PlayView extends FrameLayout {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        bus.post(new LeaveTalkEvent(playing.getUri(), interpreter.getCurrentPosition()));
         subscriptions.unsubscribe();
+        bus.post(new LeaveTalkEvent(uri, lastProgress.getCurrent()));
     }
 }

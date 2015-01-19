@@ -8,8 +8,8 @@ import rx.subjects.PublishSubject;
 public class PlayerProgressSource {
 
     public static interface Values {
-        int getCurrentPosition();
         PlayerProgress getProgress();
+        PlayerState getState();
     }
 
     private static int UPDATE_INTERVAL = 1000;
@@ -21,9 +21,9 @@ public class PlayerProgressSource {
     final private Runnable postProgress = new Runnable() {
         @Override
         public void run() {
-            emit();
+            emitIfStateAllows();
             if (handler != null) {
-                int delay = UPDATE_INTERVAL - values.getCurrentPosition() % UPDATE_INTERVAL;
+                int delay = UPDATE_INTERVAL - values.getProgress().getCurrent() % UPDATE_INTERVAL;
                 handler.postDelayed(postProgress, delay);
             }
         }
@@ -43,26 +43,33 @@ public class PlayerProgressSource {
         handler = null;
     }
 
-    public void emit() {
-        emit(values.getProgress());
-    }
-
     public void emit(PlayerProgress progress) {
         if (subject.hasObservers() && null != progress)
             subject.onNext(progress);
     }
 
     public Observable<PlayerProgress> getObservable() {
-        if (handler != null) {
+        if (shouldEmit()) {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (handler != null)
-                        emit();
+                    emitIfStateAllows();
                 }
             });
         }
 
         return subject;
+    }
+
+    // FIXME:
+    //   This smells wrong. We should have two observable
+    //   for both seeker and this one, then caller switches which to use.
+    private void emitIfStateAllows() {
+        if (shouldEmit())
+            emit(values.getProgress());
+    }
+
+    private boolean shouldEmit() {
+        return handler != null && values.getState().shouldEmit();
     }
 }

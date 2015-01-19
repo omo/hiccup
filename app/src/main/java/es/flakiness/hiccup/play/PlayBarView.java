@@ -57,6 +57,7 @@ public class PlayBarView extends View {
     }
 
     public void setProgress(float progress) {
+        // FIXME: Should invalidate() less.
         this.progress = progress;
         invalidate();
     }
