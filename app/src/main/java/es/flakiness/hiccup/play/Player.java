@@ -22,10 +22,10 @@ public class Player implements PlayerProgressSource.Values, Playing, Subscriptio
 
     private final Uri uri;
     private final Context context;
+    private final List<PendingAction> pendingActions = new ArrayList(); // FIXME: Could be different class.
+    private final PublishSubject<PlayerState> stateSubject = PublishSubject.create();
+    private final PlayerProgressSource progressSource;
     private MediaPlayer media;
-    private List<PendingAction> pendingActions = new ArrayList(); // FIXME: Could be different class.
-    private PlayerProgressSource progressSource;
-    private PublishSubject<PlayerState> stateSubject = PublishSubject.create();
     private PlayerState state;
 
     public Player(Context context, Uri uri) throws IOException {
@@ -83,7 +83,7 @@ public class Player implements PlayerProgressSource.Values, Playing, Subscriptio
             throw new AssertionError("The GestureInterpreter should be paused after seeking.");
         setState(PlayerState.PAUSING);
         consumePendingActionsWhilePossible();
-        progressSource.emit(getProgress());
+        progressSource.emit();
     }
 
     private void onPlayerCompleted() {
@@ -132,12 +132,6 @@ public class Player implements PlayerProgressSource.Values, Playing, Subscriptio
             start();
     }
 
-    // FIXME: This is wrong responsibility.
-    public void hold() {
-        media.pause();
-        setState(PlayerState.HOLDING);
-    }
-
     public void seekTo(final int nextPosition) {
         pendingActions.add(new PendingAction() {
             @Override
@@ -155,14 +149,12 @@ public class Player implements PlayerProgressSource.Values, Playing, Subscriptio
     }
 
     private void setState(PlayerState state) {
+        if (state == PlayerState.HOLDING)
+            throw new AssertionError();
         if (this.state == state)
             return;
         this.state = state;
         stateSubject.onNext(state);
-    }
-
-    public void emit(PlayerProgress progress) {
-        progressSource.emit(progress);
     }
 
     @Override

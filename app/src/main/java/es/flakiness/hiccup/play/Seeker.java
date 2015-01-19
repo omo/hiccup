@@ -17,7 +17,6 @@ public class Seeker {
     private int duration;
     private int current;
     private float gradient;
-    private Subscription intervalSubscription;
     private PublishSubject<Integer> currentPositionSubject = PublishSubject.create();
 
     private long lastNano = System.nanoTime();

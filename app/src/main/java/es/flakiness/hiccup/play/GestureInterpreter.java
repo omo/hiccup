@@ -9,10 +9,12 @@ import rx.subscriptions.CompositeSubscription;
 
 
 public class GestureInterpreter implements Subscription {
+
     private final String TAG = getClass().getSimpleName();
 
     final private Player player;
     final private int lastPosition;
+    final private PlayingWithSeek playingWithSeek;
     final private CompositeSubscription subscriptions = new CompositeSubscription();
     private Subscription gestureSubscription;
     private Seeker seeker;
@@ -20,34 +22,35 @@ public class GestureInterpreter implements Subscription {
     public GestureInterpreter(Player player, int lastPosition) throws IOException {
         this.player = player;
         this.lastPosition = lastPosition;
+        this.playingWithSeek = new PlayingWithSeek(player);
+        this.subscriptions.add(this.playingWithSeek);
+    }
+
+    public PlayingWithSeek getPlayingWithSeek() {
+        return playingWithSeek;
     }
 
     private void hold() {
         if (player.getState().isHoldable()) {
             seeker = new Seeker(player.getProgress());
-            seeker.currentPositions().subscribe(new Action1<Integer>() {
-                @Override
-                public void call(Integer integer) {
-                    player.emit(new PlayerProgress(seeker.getDuration(), seeker.getCurrent()));
-                }
-            });
-
-            player.hold();
+            playingWithSeek.startSeeking(seeker, PlayerState.HOLDING);
+            player.pause();
         }
     }
 
-    private int releaseSeeker() {
+    private int endSeeking() {
         if (null == seeker)
             return 0;
         int position = seeker.release();
         seeker = null;
+        playingWithSeek.endSeeking();
         return position;
     }
 
     private void unholdIfHolding() {
-        int nextPosition = releaseSeeker();
-        if (player.getState() != PlayerState.HOLDING)
+        if (!playingWithSeek.isSeeking())
             return;
+        int nextPosition = endSeeking();
         player.seekTo(nextPosition);
         player.start();
     }
@@ -60,7 +63,7 @@ public class GestureInterpreter implements Subscription {
     }
 
     private void moveToHead() {
-        releaseSeeker();
+        endSeeking();
         player.seekTo(0);
         player.start();
     }

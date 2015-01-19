@@ -21,7 +21,7 @@ public class PlayerProgressSource {
     final private Runnable postProgress = new Runnable() {
         @Override
         public void run() {
-            emitIfStateAllows();
+            emit();
             if (handler != null) {
                 int delay = UPDATE_INTERVAL - values.getProgress().getCurrent() % UPDATE_INTERVAL;
                 handler.postDelayed(postProgress, delay);
@@ -43,33 +43,21 @@ public class PlayerProgressSource {
         handler = null;
     }
 
-    public void emit(PlayerProgress progress) {
-        if (subject.hasObservers() && null != progress)
-            subject.onNext(progress);
+    public void emit() {
+        if (handler != null && subject.hasObservers())
+            subject.onNext(values.getProgress());
     }
 
     public Observable<PlayerProgress> getObservable() {
-        if (shouldEmit()) {
+        if (handler != null) {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    emitIfStateAllows();
+                    emit();
                 }
             });
         }
 
         return subject;
-    }
-
-    // FIXME:
-    //   This smells wrong. We should have two observable
-    //   for both seeker and this one, then caller switches which to use.
-    private void emitIfStateAllows() {
-        if (shouldEmit())
-            emit(values.getProgress());
-    }
-
-    private boolean shouldEmit() {
-        return handler != null && values.getState().shouldEmit();
     }
 }

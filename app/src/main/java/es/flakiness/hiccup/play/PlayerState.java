@@ -28,5 +28,4 @@ public enum PlayerState {
         return this == PLAYING || this == PAUSING;
     }
 
-    public boolean shouldEmit() { return this == PLAYING || this == PAUSING; }
 }
