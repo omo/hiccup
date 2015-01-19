@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import es.flakiness.hiccup.Injections;
 import es.flakiness.hiccup.R;
 
 public class TalkView extends CardView {

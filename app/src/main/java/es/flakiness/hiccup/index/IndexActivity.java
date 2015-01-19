@@ -11,25 +11,30 @@ import com.squareup.otto.Subscribe;
 
 import javax.inject.Inject;
 
+import dagger.ObjectGraph;
 import es.flakiness.hiccup.App;
+import es.flakiness.hiccup.InjectionScope;
 import es.flakiness.hiccup.talk.PlayTalkEvent;
 import es.flakiness.hiccup.R;
 import es.flakiness.hiccup.play.PlayActivity;
 import es.flakiness.hiccup.talk.TalkStore;
 
 
-public class IndexActivity extends Activity {
+public class IndexActivity extends Activity implements InjectionScope {
+
+    private ObjectGraph graph;
 
     @Inject Bus bus;
-    @Inject
-    TalkStore store;
+    @Inject TalkStore store;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_index);
-        App.inject(getApplicationContext(), this);
+        graph = App.plus(getApplicationContext(), new IndexModule());
+        graph.inject(this);
         bus.register(this);
+
+        setContentView(R.layout.activity_index);
     }
 
     @Override
@@ -81,5 +86,10 @@ public class IndexActivity extends Activity {
         intent.putExtra(PlayActivity.EXTRA_KEY_URL, event.getUri());
         intent.putExtra(PlayActivity.EXTRA_KEY_LAST_POSITION, event.getLastPosition());
         startActivity(intent);
+    }
+
+    @Override
+    public ObjectGraph getGraph() {
+        return graph;
     }
 }

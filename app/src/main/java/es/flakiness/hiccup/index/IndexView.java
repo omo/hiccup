@@ -12,9 +12,8 @@ import android.widget.ListView;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
 import butterknife.InjectView;
-import es.flakiness.hiccup.App;
+import es.flakiness.hiccup.Injections;
 import es.flakiness.hiccup.R;
 import es.flakiness.hiccup.talk.TalkStore;
 
@@ -46,9 +45,7 @@ public class IndexView extends FrameLayout {
     }
 
     private void initialize() {
-        LayoutInflater.from(getContext()).inflate(R.layout.index_view, this);
-        ButterKnife.inject(this);
-        App.inject(getContext().getApplicationContext(), this);
+        Injections.inflateAndInject(R.layout.index_view, this);
         cardList.setAdapter(talkList);
         cardList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

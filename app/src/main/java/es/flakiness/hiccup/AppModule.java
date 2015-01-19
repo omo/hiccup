@@ -14,7 +14,8 @@ import nl.qbusict.cupboard.CupboardFactory;
 import nl.qbusict.cupboard.DatabaseCompartment;
 
 @Module(
-    injects = { TalkStore.class, TalkList.class, TalkStore.class, IndexActivity.class, IndexView.class }
+    injects = { TalkStore.class },
+    library = true
 )
 public class AppModule {
     private final App app;
