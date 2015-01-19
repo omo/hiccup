@@ -3,21 +3,17 @@ package es.flakiness.hiccup.play;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.squareup.otto.Bus;
-
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import dagger.ObjectGraph;
-import es.flakiness.hiccup.LeaveTalkEvent;
 import es.flakiness.hiccup.R;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
@@ -27,14 +23,11 @@ public class PlayView extends FrameLayout {
     @Inject GestureInterpreter interpreter;
     @Inject Playing playing;
     @Inject PlayClockPreso clockPreso;
-    @Inject Uri uri;
-    @Inject Bus bus;
     @InjectView(R.id.play_view_debug_text) TextView debugText;
     @InjectView(R.id.play_view_clock) TextView clockText;
     @InjectView(R.id.play_view_gesture) PlayGestureView gesture;
     @InjectView(R.id.play_view_bar) PlayBarView barView;
 
-    private PlayerProgress lastProgress = new PlayerProgress(0, 0);
     private CompositeSubscription subscriptions;
 
     public PlayView(Context context) {
@@ -77,13 +70,6 @@ public class PlayView extends FrameLayout {
             }
         }));
 
-        subscriptions.add(playing.progress().subscribe(new Action1<PlayerProgress>() {
-            @Override
-            public void call(PlayerProgress playerProgress) {
-                lastProgress = playerProgress;
-            }
-        }));
-
         // https://www.google.com/fonts/specimen/Source+Sans+Pro
         Typeface tf = Typeface.createFromAsset(getContext().getAssets(), "fonts/SourceSansPro-Light.ttf");
         clockText.setTypeface(tf);
@@ -99,6 +85,5 @@ public class PlayView extends FrameLayout {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         subscriptions.unsubscribe();
-        bus.post(new LeaveTalkEvent(uri, lastProgress.getCurrent()));
     }
 }

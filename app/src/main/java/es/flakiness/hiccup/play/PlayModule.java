@@ -7,11 +7,13 @@ import java.io.IOException;
 
 import dagger.Module;
 import dagger.Provides;
+import es.flakiness.hiccup.App;
 import es.flakiness.hiccup.AppModule;
+import es.flakiness.hiccup.talk.TalkStore;
 import rx.subscriptions.CompositeSubscription;
 
 @Module(
-        injects = { PlayView.class },
+        injects = { PlayView.class, PlayActivity.class },
         addsTo = AppModule.class
 )
 public class PlayModule {
@@ -19,26 +21,24 @@ public class PlayModule {
     private final GestureInterpreter interpreter;
     private final Player player;
     private final PlayClockPreso preso;
-    private Context context;
-    private Uri uri;
-    private int lastPosition;
+    private final PlaySession session;
 
     public PlayModule(Context context, Uri uri, int lastPosition) throws IOException {
-        this.context = context;
-        this.uri = uri;
         this.player = new Player(context, uri);
         this.subscriptions.add(this.player);
         this.interpreter = new GestureInterpreter(player, lastPosition);
         this.subscriptions.add(this.interpreter);
         this.preso = new PlayClockPreso(this.interpreter.getSeeker());
         this.subscriptions.add(this.preso);
+        // This sucks!
+        this.session = new PlaySession(uri, interpreter.getSeeker(), App.get(context.getApplicationContext(), TalkStore.class));
+        this.subscriptions.add(this.session);
     }
 
     public void release() {
         this.subscriptions.unsubscribe();
     }
 
-    @Provides public Uri provideUri() { return uri; }
     @Provides public PlayClockPreso providePreso() { return preso; }
     @Provides public Playing providePlaying() { return this.interpreter.getSeeker(); }
     @Provides public GestureInterpreter provideInterpreter() {

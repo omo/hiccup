@@ -6,12 +6,9 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
-
-import com.squareup.otto.Bus;
 
 import javax.inject.Inject;
 
@@ -22,7 +19,7 @@ import es.flakiness.hiccup.R;
 
 public class TalkIndexView extends FrameLayout {
     @Inject TalkList talkList;
-    @Inject Bus bus;
+    @Inject TalkStore store;
     @InjectView(R.id.card_list) ListView cardList;
 
     private TalkListActionMode actionMode;
@@ -63,7 +60,13 @@ public class TalkIndexView extends FrameLayout {
             }
         });
 
-        actionMode = new TalkListActionMode(cardList, bus); // FIXME(omo): This should be built by Dagger.
+        actionMode = new TalkListActionMode(cardList, store); // FIXME(omo): This should be built by Dagger.
         cardList.setOnItemLongClickListener(actionMode);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        talkList.unsubscribe(); // This should be handled by the module
     }
 }

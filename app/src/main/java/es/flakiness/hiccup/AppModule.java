@@ -16,8 +16,8 @@ import nl.qbusict.cupboard.DatabaseCompartment;
     injects = { TalkStore.class, TalkList.class, TalkStore.class, MainActivity.class, TalkIndexView.class }
 )
 public class AppModule {
-    private App app;
-    private DatabaseOpenHelper databaseOpenHelper;
+    private final App app;
+    private final DatabaseOpenHelper databaseOpenHelper;
 
     public AppModule(App app) {
         this.app = app;

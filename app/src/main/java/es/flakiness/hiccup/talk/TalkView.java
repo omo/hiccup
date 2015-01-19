@@ -12,7 +12,6 @@ import butterknife.InjectView;
 import es.flakiness.hiccup.R;
 
 public class TalkView extends CardView {
-    private TalkPreso preso;
 
     @InjectView(R.id.talk_title) TextView title;
     @InjectView(R.id.talk_duration) TextView duration;
@@ -37,7 +36,6 @@ public class TalkView extends CardView {
    }
 
     public void setPreso(TalkPreso preso) {
-        this.preso = preso;
         title.setText(preso.getTitle());
         duration.setText(preso.getDuration());
     }

@@ -9,21 +9,19 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.squareup.otto.Bus;
-
 import java.util.ArrayList;
 
 import es.flakiness.hiccup.R;
 
 public class TalkListActionMode implements ActionMode.Callback, AdapterView.OnItemLongClickListener {
 
-    private final Bus bus;
+    private final TalkStore store;
     private final ListView parent;
     private ActionMode activeMode;
 
-    public TalkListActionMode(ListView parent, Bus bus) {
+    public TalkListActionMode(ListView parent, TalkStore store) {
         this.parent = parent;
-        this.bus = bus;
+        this.store = store;
     }
 
     public boolean isActive() {
@@ -50,7 +48,7 @@ public class TalkListActionMode implements ActionMode.Callback, AdapterView.OnIt
         ArrayList<Long> removedItems = new ArrayList();
         for (Long i : parent.getCheckedItemIds())
             removedItems.add(i);
-        bus.post(new RemoveTalksEvent(removedItems));
+        store.removeTalks(new RemoveTalksEvent(removedItems));
     }
 
     public void viewWasSelectedWhileActive(View view, int position) {
