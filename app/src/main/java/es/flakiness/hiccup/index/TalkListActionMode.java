@@ -1,4 +1,4 @@
-package es.flakiness.hiccup.talk;
+package es.flakiness.hiccup.index;
 
 import android.app.Activity;
 import android.view.ActionMode;
@@ -12,6 +12,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 import es.flakiness.hiccup.R;
+import es.flakiness.hiccup.talk.TalkStore;
 
 public class TalkListActionMode implements ActionMode.Callback, AdapterView.OnItemLongClickListener {
 

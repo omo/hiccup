@@ -1,4 +1,4 @@
-package es.flakiness.hiccup.talk;
+package es.flakiness.hiccup.index;
 
 import android.content.Context;
 import android.graphics.Color;

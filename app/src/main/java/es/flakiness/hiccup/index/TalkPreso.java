@@ -1,9 +1,11 @@
-package es.flakiness.hiccup.talk;
+package es.flakiness.hiccup.index;
 
 import android.net.Uri;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import es.flakiness.hiccup.talk.Talk;
 
 public class TalkPreso {
     private Talk entity;

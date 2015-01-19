@@ -1,7 +1,5 @@
 package es.flakiness.hiccup.talk;
 
-import java.util.Date;
-
 public class Talk {
     public Long _id;
     public String uri;

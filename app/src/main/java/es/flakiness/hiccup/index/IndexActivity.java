@@ -1,4 +1,4 @@
-package es.flakiness.hiccup;
+package es.flakiness.hiccup.index;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,19 +11,23 @@ import com.squareup.otto.Subscribe;
 
 import javax.inject.Inject;
 
+import es.flakiness.hiccup.App;
+import es.flakiness.hiccup.talk.PlayTalkEvent;
+import es.flakiness.hiccup.R;
 import es.flakiness.hiccup.play.PlayActivity;
 import es.flakiness.hiccup.talk.TalkStore;
 
 
-public class MainActivity extends Activity {
+public class IndexActivity extends Activity {
 
     @Inject Bus bus;
-    @Inject TalkStore store;
+    @Inject
+    TalkStore store;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_index);
         App.inject(getApplicationContext(), this);
         bus.register(this);
     }

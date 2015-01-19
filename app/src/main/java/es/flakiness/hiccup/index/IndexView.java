@@ -1,4 +1,4 @@
-package es.flakiness.hiccup.talk;
+package es.flakiness.hiccup.index;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -16,29 +16,31 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import es.flakiness.hiccup.App;
 import es.flakiness.hiccup.R;
+import es.flakiness.hiccup.talk.TalkStore;
 
-public class TalkIndexView extends FrameLayout {
+public class IndexView extends FrameLayout {
     @Inject TalkList talkList;
-    @Inject TalkStore store;
+    @Inject
+    TalkStore store;
     @InjectView(R.id.card_list) ListView cardList;
 
     private TalkListActionMode actionMode;
 
-    public TalkIndexView(Context context) {
+    public IndexView(Context context) {
         this(context, null);
     }
 
-    public TalkIndexView(Context context, AttributeSet attrs) {
+    public IndexView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public TalkIndexView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public IndexView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initialize();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public TalkIndexView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public IndexView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         initialize();
     }

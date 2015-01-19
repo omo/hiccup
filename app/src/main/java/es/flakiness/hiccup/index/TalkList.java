@@ -1,4 +1,4 @@
-package es.flakiness.hiccup.talk;
+package es.flakiness.hiccup.index;
 
 import android.database.DataSetObservable;
 import android.database.DataSetObserver;
@@ -14,7 +14,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import es.flakiness.hiccup.PlayTalkEvent;
+import es.flakiness.hiccup.talk.PlayTalkEvent;
+import es.flakiness.hiccup.talk.Talk;
+import es.flakiness.hiccup.talk.TalkStore;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
