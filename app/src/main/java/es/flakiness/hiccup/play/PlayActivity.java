@@ -9,22 +9,19 @@ import android.view.WindowManager;
 
 import java.io.IOException;
 
-import butterknife.ButterKnife;
-import butterknife.InjectView;
 import dagger.ObjectGraph;
 import es.flakiness.hiccup.App;
+import es.flakiness.hiccup.InjectionScope;
 import es.flakiness.hiccup.R;
 
 
-public class PlayActivity extends Activity {
+public class PlayActivity extends Activity implements InjectionScope {
 
     public static final String EXTRA_KEY_URL = "PLAY_ACTIVITY_URI";
     public static final String EXTRA_KEY_LAST_POSITION = "PLAY_LAST_POSITION";
 
     private ObjectGraph graph;
     private PlayModule module;
-
-    @InjectView(R.id.play_view) PlayView playView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +41,6 @@ public class PlayActivity extends Activity {
         getActionBar().hide();
         setContentView(R.layout.activity_play);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        ButterKnife.inject(this);
-        playView.injectFrom(graph);
     }
 
     @Override
@@ -58,5 +53,10 @@ public class PlayActivity extends Activity {
     public void onConfigurationChanged(Configuration newConfig) {
         // TODO(omo): What should I do here?
         super.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public ObjectGraph getGraph() {
+        return graph;
     }
 }

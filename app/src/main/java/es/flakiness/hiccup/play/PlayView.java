@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import dagger.ObjectGraph;
+import es.flakiness.hiccup.Injections;
 import es.flakiness.hiccup.R;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
@@ -50,16 +51,9 @@ public class PlayView extends FrameLayout {
     }
 
     private void initialize() {
-        // TODO(omo): This should be extracted to something like "inflateAndInject()"
-        LayoutInflater.from(getContext()).inflate(R.layout.play_view, this);
-        ButterKnife.inject(this);
-    }
+        Injections.inflateAndInject(R.layout.play_view, this);
 
-    // FIXME: It is confusing to have two initialization code: injectFrom() and onAttachedToWindow()
-    public void injectFrom(ObjectGraph graph) {
-        graph.inject(this);
         subscriptions = new CompositeSubscription();
-
         interpreter.connectTo(gesture.gestures());
         clockPreso.connectTo(clockText, barView);
 
