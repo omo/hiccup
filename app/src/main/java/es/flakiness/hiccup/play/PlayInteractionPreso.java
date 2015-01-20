@@ -1,5 +1,7 @@
 package es.flakiness.hiccup.play;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -14,7 +16,9 @@ import rx.subscriptions.CompositeSubscription;
 
 public class PlayInteractionPreso implements Subscription {
     private final CompositeSubscription subscriptions = new CompositeSubscription();
+    private final View backgroundView;
     private final int originalColor;
+    private ValueAnimator backgroundAnimator;
 
     static private int darken(int color, float level) {
         float hsv[] = new float[3];
@@ -23,21 +27,39 @@ public class PlayInteractionPreso implements Subscription {
         return Color.HSVToColor(hsv);
     }
 
+    private int getBackgroundColor() {
+        return ((ColorDrawable) backgroundView.getBackground()).getColor();
+    }
+
+    private void animateBackgroundTo(int toColor) {
+        if (backgroundAnimator != null)
+            backgroundAnimator.cancel();
+        backgroundAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), getBackgroundColor(), toColor).setDuration(50);
+        backgroundAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                backgroundView.setBackgroundColor((Integer)animation.getAnimatedValue());
+            }
+        });
+        backgroundAnimator.start();
+    }
+
     public PlayInteractionPreso(final View view, Observable<GestureEvent> gestures) {
-        originalColor = ((ColorDrawable) view.getBackground()).getColor();
+        backgroundView = view;
+        originalColor = getBackgroundColor();
         subscriptions.add(gestures.subscribe(new Action1<GestureEvent>() {
             @Override
             public void call(GestureEvent gestureEvent) {
                 switch (gestureEvent.getType()) {
                     case DOWN:
                         Log.d(getClass().getSimpleName(), view.getBackground().toString());
-                        view.setBackgroundColor(darken(originalColor, 0.9f));
+                        animateBackgroundTo(darken(originalColor, 0.9f));
                         break;
                     case HOLD:
                         ((Vibrator)view.getContext().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
                         break;
                     case UP:
-                        view.setBackgroundColor(originalColor);
+                        animateBackgroundTo(originalColor);
                         break;
                     default:
                         break;
