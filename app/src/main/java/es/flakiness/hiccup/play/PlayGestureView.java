@@ -44,6 +44,7 @@ public class PlayGestureView extends View implements GestureDetector.OnGestureLi
 
     @Override
     public boolean onDown(MotionEvent motionEvent) {
+        gestureSubject.onNext(new GestureEvent(GestureEvent.Type.DOWN));
         return true;
     }
 
@@ -80,8 +81,12 @@ public class PlayGestureView extends View implements GestureDetector.OnGestureLi
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         boolean ret = detector.onTouchEvent(event);
+        boolean up = 0 != (event.getActionMasked() & MotionEvent.ACTION_UP);
+        if (up)
+            gestureSubject.onNext(new GestureEvent(GestureEvent.Type.UP));
+
         if (null != pressedHere) {
-            if (0 != (event.getActionMasked() & MotionEvent.ACTION_UP))
+            if (up)
                 onRelease(event);
             else
                 onPull(event);

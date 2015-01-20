@@ -91,6 +91,9 @@ public class GestureInterpreter implements Subscription {
                     case FLING_BACK:
                         flingBack();
                         break;
+                    case DOWN:
+                    case UP:
+                        break;
                 }
             }
         }));

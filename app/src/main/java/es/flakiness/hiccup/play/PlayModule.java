@@ -20,7 +20,7 @@ public class PlayModule {
     private final CompositeSubscription subscriptions = new CompositeSubscription();
     private final GestureInterpreter interpreter;
     private final Player player;
-    private final PlayClockPreso preso;
+    private final PlayProgressPreso preso;
     private final PlaySession session;
 
     public PlayModule(Context context, Uri uri, int lastPosition) throws IOException {
@@ -28,7 +28,7 @@ public class PlayModule {
         this.subscriptions.add(this.player);
         this.interpreter = new GestureInterpreter(player, lastPosition);
         this.subscriptions.add(this.interpreter);
-        this.preso = new PlayClockPreso(this.interpreter.getSeeker());
+        this.preso = new PlayProgressPreso(this.interpreter.getSeeker());
         this.subscriptions.add(this.preso);
         // This sucks :-(
         this.session = new PlaySession(uri, interpreter.getSeeker(), Injections.get(context.getApplicationContext(), TalkStore.class));
@@ -39,7 +39,7 @@ public class PlayModule {
         this.subscriptions.unsubscribe();
     }
 
-    @Provides public PlayClockPreso providePreso() { return preso; }
+    @Provides public PlayProgressPreso providePreso() { return preso; }
     @Provides public Playing providePlaying() { return this.interpreter.getSeeker(); }
     @Provides public GestureInterpreter provideInterpreter() {
         return interpreter;

@@ -1,7 +1,10 @@
 package es.flakiness.hiccup.play;
 
 public class GestureEvent {
+
     public enum Type {
+        DOWN,
+        UP,
         TAP,
         HOLD,
         RELEASE,

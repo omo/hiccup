@@ -11,13 +11,13 @@ import rx.functions.Func1;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
 
-public class PlayClockPreso implements Subscription {
+public class PlayProgressPreso implements Subscription {
 
     private final Playing playing;
     private final CompositeSubscription subscriptions = new CompositeSubscription();
 
     @Inject
-    public PlayClockPreso(Playing playing) {
+    public PlayProgressPreso(Playing playing) {
         this.playing = playing;
     }
 

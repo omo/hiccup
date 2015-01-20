@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="es.flakiness.hiccup" >
 
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <application
         android:name="es.flakiness.hiccup.App"
         android:allowBackup="true"

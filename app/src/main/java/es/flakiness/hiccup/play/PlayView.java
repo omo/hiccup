@@ -5,15 +5,12 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
 import butterknife.InjectView;
-import dagger.ObjectGraph;
 import es.flakiness.hiccup.Injections;
 import es.flakiness.hiccup.R;
 import rx.functions.Action1;
@@ -23,7 +20,9 @@ public class PlayView extends FrameLayout {
 
     @Inject GestureInterpreter interpreter;
     @Inject Playing playing;
-    @Inject PlayClockPreso clockPreso;
+    @Inject
+    PlayProgressPreso clockPreso;
+    @InjectView(R.id.play_view_layout) FrameLayout layout;
     @InjectView(R.id.play_view_debug_text) TextView debugText;
     @InjectView(R.id.play_view_clock) TextView clockText;
     @InjectView(R.id.play_view_gesture) PlayGestureView gesture;
@@ -53,9 +52,11 @@ public class PlayView extends FrameLayout {
     private void initialize() {
         Injections.inflateAndInject(R.layout.play_view, this);
 
+        // FIXME: This lifecycle management thingy is a mess. It should be more centralized.
         subscriptions = new CompositeSubscription();
         interpreter.connectTo(gesture.gestures());
         clockPreso.connectTo(clockText, barView);
+        subscriptions.add(new PlayInteractionPreso(layout, gesture.gestures()));
 
         subscriptions.add(playing.states().subscribe(new Action1<PlayerState>() {
             @Override
