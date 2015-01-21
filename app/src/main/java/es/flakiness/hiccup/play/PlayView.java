@@ -56,7 +56,15 @@ public class PlayView extends FrameLayout {
         subscriptions = new CompositeSubscription();
         interpreter.connectTo(gesture.gestures());
         clockPreso.connectTo(clockText, barView);
-        subscriptions.add(new PlayInteractionPreso(layout, gesture.gestures()));
+        // FIXME: PlayInteractionPreso should be built by Dagger.
+        PlayInteractionPreso interationPreso = new PlayInteractionPreso(layout, gesture.gestures());
+        subscriptions.add(interationPreso);
+        subscriptions.add(interationPreso.invalidation().subscribe(new Action1<ViewRenderer>() {
+            @Override
+            public void call(ViewRenderer viewRenderer) {
+                gesture.willRender(viewRenderer);
+            }
+        }));
 
         subscriptions.add(playing.states().subscribe(new Action1<PlayerState>() {
             @Override

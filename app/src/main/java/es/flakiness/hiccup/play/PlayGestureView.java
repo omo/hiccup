@@ -2,6 +2,7 @@ package es.flakiness.hiccup.play;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Canvas;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -18,6 +19,12 @@ public class PlayGestureView extends View implements GestureDetector.OnGestureLi
 
     private GestureDetector detector;
     private PublishSubject<GestureEvent> gestureSubject = PublishSubject.create();
+    private ViewRenderer renderer = new ViewRenderer() {
+        @Override
+        public void draw(View view, Canvas canvas) {
+            // Do nothing by default.
+        }
+    };
 
     public PlayGestureView(Context context) {
         this(context, null);
@@ -101,6 +108,12 @@ public class PlayGestureView extends View implements GestureDetector.OnGestureLi
         gestureSubject.onCompleted();
     }
 
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        renderer.draw(this, canvas);
+    }
+
     private void onRelease(MotionEvent event) {
         gestureSubject.onNext(new GestureEvent(GestureEvent.Type.RELEASE));
         pressedHere = null;
@@ -119,4 +132,10 @@ public class PlayGestureView extends View implements GestureDetector.OnGestureLi
     public Observable<GestureEvent> gestures() {
         return gestureSubject;
     }
+
+    public void willRender(ViewRenderer renderer) {
+        this.renderer = renderer;
+        invalidate();
+    }
+
 }

@@ -45,7 +45,7 @@ public class GestureInterpreter implements Subscription {
 
 
     private void flingBack() {
-        if (player.getState() != PlayerState.PAUSING)
+        if (player.getState() != PlayerState.PAUSING || seeker.isSeeking())
             return;
         moveToHead();
     }
