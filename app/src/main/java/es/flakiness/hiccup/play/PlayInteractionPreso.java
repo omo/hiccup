@@ -18,7 +18,7 @@ import rx.subscriptions.CompositeSubscription;
 
 public class PlayInteractionPreso implements Subscription {
     private final CompositeSubscription subscriptions = new CompositeSubscription();
-    private final PublishSubject<ViewRenderer> invalidation = PublishSubject.create();
+    private final PublishSubject<ViewRenderer> invalidations = PublishSubject.create();
     private final View backgroundView;
     private final int originalColor;
     private ValueAnimator backgroundAnimator;
@@ -41,8 +41,8 @@ public class PlayInteractionPreso implements Subscription {
         return ((ColorDrawable) backgroundView.getBackground()).getColor();
     }
 
-    public Observable<ViewRenderer> invalidation() {
-        return invalidation;
+    public Observable<ViewRenderer> invalidations() {
+        return invalidations;
     }
 
     private void animateBackgroundTo(int toColor) {

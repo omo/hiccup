@@ -59,7 +59,7 @@ public class PlayView extends FrameLayout {
         // FIXME: PlayInteractionPreso should be built by Dagger.
         PlayInteractionPreso interationPreso = new PlayInteractionPreso(layout, gesture.gestures());
         subscriptions.add(interationPreso);
-        subscriptions.add(interationPreso.invalidation().subscribe(new Action1<ViewRenderer>() {
+        subscriptions.add(interationPreso.invalidations().subscribe(new Action1<ViewRenderer>() {
             @Override
             public void call(ViewRenderer viewRenderer) {
                 gesture.willRender(viewRenderer);
