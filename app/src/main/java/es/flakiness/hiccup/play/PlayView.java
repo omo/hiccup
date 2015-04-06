@@ -66,6 +66,8 @@ public class PlayView extends FrameLayout {
             }
         }));
 
+        interationPreso.startRendering();
+
         subscriptions.add(playing.states().subscribe(new Action1<PlayerState>() {
             @Override
             public void call(PlayerState playerState) {

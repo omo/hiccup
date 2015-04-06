@@ -5,6 +5,8 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Vibrator;
 import android.util.Log;
@@ -26,7 +28,46 @@ public class PlayInteractionPreso implements Subscription {
     private ViewRenderer foregroundRenderer = new ViewRenderer() {
         @Override
         public void draw(View view, Canvas canvas) {
+            float vw = view.getWidth();
+            float vh = view.getHeight();
 
+            float paddingBottom = 100;
+            float margin  = 10;
+            // We assume portrait layout, thus shorter one is vw.
+            float containerUnit = vw;
+            float paddingTop = vh - paddingBottom - containerUnit;
+            float containerTop = paddingTop;
+            float containerLeft = 0;
+
+            float bboxHeight = (containerUnit/3.0f)*1.1f;
+            float bboxWidth = (containerUnit/3.0f)*1.0f;
+            float bboxLeft = (containerUnit - bboxWidth)/2;
+            float bboxTop = containerTop + (containerUnit - bboxHeight)/2;
+
+            float pauseBoxHeight = bboxHeight;
+            float pauseBoxSeparation = bboxWidth/4.0f;
+            float pauseBoxWidth = (bboxWidth - pauseBoxSeparation)/2;
+
+            float innerUnit = containerUnit - margin*2;
+
+            Path path = new Path();
+            path.addRect(
+                    bboxLeft,
+                    bboxTop,
+                    bboxLeft + pauseBoxWidth,
+                    bboxTop + pauseBoxHeight,
+                    Path.Direction.CCW);
+
+            path.addRect(
+                    bboxLeft + pauseBoxWidth + pauseBoxSeparation,
+                    bboxTop,
+                    bboxLeft + pauseBoxWidth + pauseBoxSeparation + pauseBoxWidth,
+                    bboxTop + pauseBoxHeight,
+                    Path.Direction.CCW);
+
+            Paint paint = new Paint();
+            paint.setARGB(255, 0, 0, 0);
+            canvas.drawPath(path, paint);
         }
     };
 
@@ -56,6 +97,10 @@ public class PlayInteractionPreso implements Subscription {
             }
         });
         backgroundAnimator.start();
+    }
+
+    public void startRendering() {
+        invalidations.onNext(foregroundRenderer);
     }
 
     public PlayInteractionPreso(final View view, Observable<GestureEvent> gestures) {
