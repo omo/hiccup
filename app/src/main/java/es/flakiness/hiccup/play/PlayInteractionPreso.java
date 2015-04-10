@@ -5,7 +5,6 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
@@ -13,6 +12,9 @@ import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
 
+import es.flakiness.hiccup.play.sign.PauseSign;
+import es.flakiness.hiccup.play.sign.PlaySign;
+import es.flakiness.hiccup.play.sign.Signs;
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Action1;
@@ -82,13 +84,13 @@ public class PlayInteractionPreso implements Subscription {
             public void call(PlayerState playerState) {
                 switch (playerState) {
                     case PLAYING:
-                        invalidations.onNext(new PauseSignRenderer());
+                        invalidations.onNext(new PauseSign());
                         break;
                     case PAUSING:
-                        invalidations.onNext(new PlaySignRenderer());
+                        invalidations.onNext(new PlaySign());
                         break;
                     case HOLDING:
-                        invalidations.onNext(new HoldSignRenderer());
+                        invalidations.onNext(new HoldSign());
                         break;
                     default:
                         invalidations.onNext(new ViewRenderer() {
@@ -112,100 +114,11 @@ public class PlayInteractionPreso implements Subscription {
         return subscriptions.isUnsubscribed();
     }
 
-    private static class Renderers {
-        final static float paddingBottom = 100;
-
-        static private RectF getContainerBox(View view) {
-            float vw = view.getWidth();
-            float vh = view.getHeight();
-            float containerWidth = vw;
-            float containerHeight = vw;
-            float paddingTop = vh - paddingBottom - containerWidth;
-            float containerTop = paddingTop;
-            float containerLeft = 0;
-            return new RectF(containerLeft, containerTop, containerLeft + containerWidth, containerTop + containerHeight);
-        }
-
-        static private RectF getCenterBoundingBox(RectF container) {
-            float bboxHeight = (container.width()/3.0f)*1.1f;
-            float bboxWidth = (container.width()/3.0f)*1.0f;
-            float bboxLeft = (container.width() - bboxWidth)/2;
-            float bboxTop = container.top + (container.height() - bboxHeight)/2;
-            return new RectF(bboxLeft, bboxTop, bboxLeft + bboxWidth, bboxTop + bboxHeight);
-        }
-
-        static private RectF getRightBoundingBox(RectF container) {
-            RectF bound = getCenterBoundingBox(container);
-            float bboxShift = container.width()/10;
-            bound.offsetTo(container.right - bound.width() - bboxShift, bound.top);
-            return bound;
-        }
-
-        static private RectF getLeftBoundingBox(RectF container) {
-            RectF bound = getCenterBoundingBox(container);
-            float bboxShift = container.width()/10;
-            bound.offsetTo(container.left + bboxShift, bound.top);
-            return bound;
-        }
-
-        static private Paint getSignPaint() {
-            Paint paint = new Paint();
-            paint.setARGB(255, 0, 0, 0);
-            return paint;
-        }
-    }
-
-    private static class PauseSignRenderer implements ViewRenderer {
-
+    private static class HoldSign implements ViewRenderer {
         @Override
         public void draw(View view, Canvas canvas) {
-            RectF container = Renderers.getContainerBox(view);
-            RectF bound = Renderers.getCenterBoundingBox(container);
-
-            float pauseBoxHeight = bound.height();
-            float pauseBoxSeparation = bound.width() / 4.0f;
-            float pauseBoxWidth = (bound.width() - pauseBoxSeparation) / 2;
-
-            Path path = new Path();
-            path.addRect(
-                    bound.left,
-                    bound.top,
-                    bound.left + pauseBoxWidth,
-                    bound.top + pauseBoxHeight,
-                    Path.Direction.CCW);
-
-            path.addRect(
-                    bound.left + pauseBoxWidth + pauseBoxSeparation,
-                    bound.top,
-                    bound.left + pauseBoxWidth + pauseBoxSeparation + pauseBoxWidth,
-                    bound.top + pauseBoxHeight,
-                    Path.Direction.CCW);
-
-            canvas.drawPath(path, Renderers.getSignPaint());
-        }
-    }
-
-    private static class PlaySignRenderer implements ViewRenderer {
-        @Override
-        public void draw(View view, Canvas canvas) {
-            RectF container = Renderers.getContainerBox(view);
-            RectF bound = Renderers.getCenterBoundingBox(container);
-
-            Path path = new Path();
-            path.moveTo(bound.left, bound.top);
-            path.lineTo(bound.right, bound.centerY());
-            path.lineTo(bound.left, bound.bottom);
-            path.close();
-
-            canvas.drawPath(path, Renderers.getSignPaint());
-        }
-    }
-
-    private static class HoldSignRenderer implements ViewRenderer {
-        @Override
-        public void draw(View view, Canvas canvas) {
-            RectF container = Renderers.getContainerBox(view);
-            RectF rbound = Renderers.getRightBoundingBox(container);
+            RectF container = Signs.getContainerBox(view);
+            RectF rbound = Signs.getRightBoundingBox(container);
 
             Path rpath = new Path();
             rpath.moveTo(rbound.left, rbound.top);
@@ -217,9 +130,9 @@ public class PlayInteractionPreso implements Subscription {
             rpath.lineTo(rbound.centerX(), rbound.bottom);
             rpath.close();
 
-            canvas.drawPath(rpath, Renderers.getSignPaint());
+            canvas.drawPath(rpath, Signs.getSignPaint());
 
-            RectF lbound = Renderers.getLeftBoundingBox(container);
+            RectF lbound = Signs.getLeftBoundingBox(container);
 
             Path lpath = new Path();
             lpath.moveTo(lbound.right, lbound.top);
@@ -231,7 +144,7 @@ public class PlayInteractionPreso implements Subscription {
             lpath.lineTo(lbound.centerX(), lbound.bottom);
             lpath.close();
 
-            canvas.drawPath(lpath, Renderers.getSignPaint());
+            canvas.drawPath(lpath, Signs.getSignPaint());
         }
     }
 }
