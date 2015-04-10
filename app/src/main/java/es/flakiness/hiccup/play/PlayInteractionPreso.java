@@ -26,6 +26,8 @@ public class PlayInteractionPreso implements Subscription {
     private final int originalColor;
     private ValueAnimator backgroundAnimator;
 
+    private ViewRenderer lastSign;
+
     static private int darken(int color, float level) {
         float hsv[] = new float[3];
         Color.colorToHSV(color, hsv);
@@ -39,6 +41,17 @@ public class PlayInteractionPreso implements Subscription {
 
     public Observable<ViewRenderer> invalidations() {
         return invalidations;
+    }
+
+    private void updateSign(ViewRenderer sign) {
+        lastSign = sign;
+        invalidations.onNext(sign);
+    }
+
+    private void updatePullDelta(float delta) {
+        if (!(lastSign instanceof HoldSign))
+            return;
+        updateSign(new HoldSign(delta));
     }
 
     private void animateBackgroundTo(int toColor) {
@@ -71,6 +84,8 @@ public class PlayInteractionPreso implements Subscription {
                     case UP:
                         animateBackgroundTo(originalColor);
                         break;
+                    case PULL:
+                        updatePullDelta(((PullEvent) gestureEvent).getDelta());
                     default:
                         break;
                 }
@@ -82,21 +97,22 @@ public class PlayInteractionPreso implements Subscription {
             public void call(PlayerState playerState) {
                 switch (playerState) {
                     case PLAYING:
-                        invalidations.onNext(new PauseSign());
+                        updateSign(new PauseSign());
                         break;
                     case PAUSING:
-                        invalidations.onNext(new PlaySign());
+                        updateSign(new PlaySign());
                         break;
                     case HOLDING:
-                        invalidations.onNext(new HoldSign());
+                        updateSign(new HoldSign(0));
                         break;
                     default:
-                        invalidations.onNext(new ViewRenderer() {
+                        updateSign(new ViewRenderer() {
                             @Override
                             public void draw(View view, Canvas canvas) {
                                 // empty.
                             }
                         });
+                        break;
                 }
             }
         }));

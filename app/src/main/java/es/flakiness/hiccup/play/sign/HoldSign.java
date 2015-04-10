@@ -11,10 +11,19 @@ import es.flakiness.hiccup.play.ViewRenderer;
 * Created by omo on 4/9/15.
 */
 public class HoldSign implements ViewRenderer {
+
+    private final float delta;
+
+    public HoldSign(float delta) {
+        this.delta = delta;
+    }
+
     @Override
     public void draw(View view, Canvas canvas) {
         RectF container = Signs.getContainerBox(view);
         RectF rbound = Signs.getRightBoundingBox(container);
+        rbound.inset(Math.min(rbound.width()*0.5f, -rbound.width()*delta*0.5f),
+                     Math.min(rbound.height()*0.5f, -rbound.height()*delta*0.5f));
 
         Path rpath = new Path();
         rpath.moveTo(rbound.left, rbound.top);
@@ -29,6 +38,8 @@ public class HoldSign implements ViewRenderer {
         canvas.drawPath(rpath, Signs.getSignPaint());
 
         RectF lbound = Signs.getLeftBoundingBox(container);
+        lbound.inset(Math.min(lbound.width()*0.5f, lbound.width()*delta*0.5f),
+                     Math.min(lbound.height()*0.5f, lbound.height()*delta*0.5f));
 
         Path lpath = new Path();
         lpath.moveTo(lbound.right, lbound.top);
