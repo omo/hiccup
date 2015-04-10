@@ -23,8 +23,7 @@ public class PlayView extends FrameLayout {
     @Inject
     PlayProgressPreso clockPreso;
     @InjectView(R.id.play_view_layout) FrameLayout layout;
-    @InjectView(R.id.play_view_debug_text) TextView debugText;
-    @InjectView(R.id.play_view_clock) TextView clockText;
+     @InjectView(R.id.play_view_clock) TextView clockText;
     @InjectView(R.id.play_view_gesture) PlayGestureView gesture;
     @InjectView(R.id.play_view_bar) PlayBarView barView;
 
@@ -63,13 +62,6 @@ public class PlayView extends FrameLayout {
             @Override
             public void call(ViewRenderer viewRenderer) {
                 gesture.willRender(viewRenderer);
-            }
-        }));
-
-        subscriptions.add(playing.states().subscribe(new Action1<PlayerState>() {
-            @Override
-            public void call(PlayerState playerState) {
-                debugText.setText(playerState.toString());
             }
         }));
 
