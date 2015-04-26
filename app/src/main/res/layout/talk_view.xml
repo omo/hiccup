@@ -5,7 +5,8 @@
     android:id="@+id/talk_view_layout"
     android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/activity_vertical_margin">
     <TextView
         android:id="@+id/talk_title"
         android:layout_width="fill_parent"
