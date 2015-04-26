@@ -1,17 +1,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".MainActivity">
     <!--
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" android:showAsAction="never" />
       -->
     <item android:id="@+id/action_add_talk" android:title="@string/add_talk"
-        android:orderInCategory="100" android:showAsAction="always"
+        android:orderInCategory="100" app:showAsAction="always"
         android:icon="@drawable/ic_add_box_black_24dp"/>
     <!-- These were for debugging and no longer used. -->
     <item android:id="@+id/action_clear_talk_list" android:title="@string/clear_talks"
-        android:orderInCategory="100" android:showAsAction="never"
+        android:orderInCategory="100" app:showAsAction="never"
         android:visible="false" />
     <item android:id="@+id/action_add_debug_item" android:title="Add Debug Talk"
-        android:orderInCategory="100" android:showAsAction="never"
+        android:orderInCategory="100" app:showAsAction="never"
         android:visible="false" />
 </menu>

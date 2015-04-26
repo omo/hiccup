@@ -3,6 +3,7 @@ package es.flakiness.hiccup.index;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -14,13 +15,14 @@ import javax.inject.Inject;
 import dagger.ObjectGraph;
 import es.flakiness.hiccup.InjectionScope;
 import es.flakiness.hiccup.Injections;
+import es.flakiness.hiccup.talk.AddTalkEvent;
 import es.flakiness.hiccup.talk.PlayTalkEvent;
 import es.flakiness.hiccup.R;
 import es.flakiness.hiccup.play.PlayActivity;
 import es.flakiness.hiccup.talk.TalkStore;
 
 
-public class IndexActivity extends Activity implements InjectionScope {
+public class IndexActivity extends ActionBarActivity implements InjectionScope {
 
     private ObjectGraph graph;
 
@@ -50,12 +52,6 @@ public class IndexActivity extends Activity implements InjectionScope {
         return true;
     }
 
-    private void requestAddTalk() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.setType("audio/*");
-        startActivityForResult(intent, 1);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1 && resultCode == RESULT_OK) {
@@ -63,22 +59,13 @@ public class IndexActivity extends Activity implements InjectionScope {
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_add_debug_item:
-                store.addDebugTalk();
-                return true;
-            case R.id.action_clear_talk_list:
-                store.clearTalk();
-                return true;
-            case R.id.action_add_talk:
-                requestAddTalk();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+    @Subscribe
+    public void requestAddTalk(AddTalkEvent event) {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType("audio/*");
+        startActivityForResult(intent, 1);
     }
+
 
     @Subscribe
     public void playTalk(PlayTalkEvent event) {
