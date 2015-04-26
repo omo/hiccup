@@ -1,6 +1,7 @@
 package es.flakiness.hiccup.index;
 
 import android.app.Activity;
+import android.support.v7.widget.Toolbar;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import es.flakiness.hiccup.R;
 import es.flakiness.hiccup.talk.TalkStore;
 
-public class TalkListActionMode implements ActionMode.Callback, AdapterView.OnItemLongClickListener {
+public class TalkListActionMode implements ActionMode.Callback {
 
     private final TalkStore store;
     private final ListView parent;
@@ -29,9 +30,9 @@ public class TalkListActionMode implements ActionMode.Callback, AdapterView.OnIt
         return null != activeMode;
     }
 
-    private void start(Activity activity, View initialSelection, int position) {
+    private void start(Toolbar toolbar, View initialSelection, int position) {
         parent.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
-        activeMode = activity.startActionMode(this);
+        activeMode = toolbar.startActionMode(this);
         parent.setItemChecked(position, true);
         viewWasSelectedWhileActive(initialSelection, position);
     }
@@ -83,11 +84,10 @@ public class TalkListActionMode implements ActionMode.Callback, AdapterView.OnIt
         didFinish();
     }
 
-    @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+    public boolean onItemLongClick(Toolbar toolbar, View view, int position, long id) {
         if (isActive())
             return false;
-        start((Activity) view.getContext(), view, position);
+        start(toolbar, view, position);
         return true;
     }
 }

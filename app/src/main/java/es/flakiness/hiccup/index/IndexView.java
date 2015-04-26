@@ -68,7 +68,12 @@ public class IndexView extends FrameLayout {
         });
 
         actionMode = new TalkListActionMode(cardList, store); // FIXME(omo): This should be built by Dagger.
-        cardList.setOnItemLongClickListener(actionMode);
+        cardList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                return actionMode.onItemLongClick(toolbar, view, position, id);
+            }
+        });
 
         toolbar.inflateMenu(R.menu.menu_main);
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
