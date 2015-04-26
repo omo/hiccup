@@ -2,8 +2,10 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:padding="0dp">
     <ListView
+        android:layout_margin="0dp"
         android:dividerHeight="0dp"
         android:divider="@null"
         android:id="@+id/card_list"
