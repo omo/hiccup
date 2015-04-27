@@ -1,13 +1,11 @@
 package es.flakiness.hiccup.index;
 
-import android.app.Activity;
 import android.support.v7.widget.Toolbar;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;

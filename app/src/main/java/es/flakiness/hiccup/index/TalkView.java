@@ -42,7 +42,7 @@ public class TalkView extends FrameLayout {
     @Override
     public void setActivated(boolean selected) {
         super.setActivated(selected);
-        int color = isActivated() ? Color.rgb(0xdd, 0xdd, 0xff) : Color.TRANSPARENT;
+        int color = isActivated() ? getResources().getColor(R.color.app_item_background_selected) : Color.TRANSPARENT;
         setBackgroundColor(color);
     }
 }

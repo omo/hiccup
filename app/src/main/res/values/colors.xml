@@ -1,5 +1,10 @@
 <resources>
+    <color name="app_primary">#ffaa56</color>
+    <color name="app_primary_dark">#3a3a3a</color>
+    <color name="app_accent">#000044</color>
 
+    <color name="app_primary_darken">#cc8823</color>
     <color name="black_overlay">#66000000</color>
-
+    <color name="app_item_background">#ffffff</color>
+    <color name="app_item_background_selected">#ffdd89</color>
 </resources>
