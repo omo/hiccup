@@ -2,11 +2,12 @@ package es.flakiness.hiccup.index;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -89,12 +90,21 @@ public class IndexView extends FrameLayout {
                     case R.id.action_add_talk:
                         bus.post(new AddTalkEvent());
                         return true;
+                    case R.id.action_show_licenses:
+                        showLicenses();
+                        return true;
                     default:
                         Log.wtf(getClass().getName(), "No such menu");
                         return false;
                 }
             }
         });
+    }
+
+    private void showLicenses() {
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse("https://github.com/omo/hiccup/blob/master/LICENSES.txt"));
+        getContext().startActivity(i);
     }
 
     @Override
