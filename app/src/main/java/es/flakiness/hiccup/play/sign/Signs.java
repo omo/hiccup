@@ -43,9 +43,4 @@ public class Signs {
         return bound;
     }
 
-    static public Paint getSignPaint() {
-        Paint paint = new Paint();
-        paint.setARGB(255, 0, 0, 0);
-        return paint;
-    }
 }

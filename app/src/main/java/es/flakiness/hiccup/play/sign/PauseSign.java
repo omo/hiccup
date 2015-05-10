@@ -6,6 +6,7 @@ import android.graphics.RectF;
 import android.view.View;
 
 import es.flakiness.hiccup.play.ViewRenderer;
+import es.flakiness.hiccup.play.ViewRenderingContext;
 
 /**
 * Created by omo on 4/9/15.
@@ -13,8 +14,8 @@ import es.flakiness.hiccup.play.ViewRenderer;
 public class PauseSign implements ViewRenderer {
 
     @Override
-    public void draw(View view, Canvas canvas) {
-        RectF container = Signs.getContainerBox(view);
+    public void draw(ViewRenderingContext context, Canvas canvas) {
+        RectF container = context.getContainerBox();
         RectF bound = Signs.getCenterBoundingBox(container);
 
         float pauseBoxHeight = bound.height();
@@ -36,6 +37,6 @@ public class PauseSign implements ViewRenderer {
                 bound.top + pauseBoxHeight,
                 Path.Direction.CCW);
 
-        canvas.drawPath(path, Signs.getSignPaint());
+        canvas.drawPath(path, context.getPaint());
     }
 }

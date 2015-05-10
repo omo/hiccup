@@ -6,14 +6,15 @@ import android.graphics.RectF;
 import android.view.View;
 
 import es.flakiness.hiccup.play.ViewRenderer;
+import es.flakiness.hiccup.play.ViewRenderingContext;
 
 /**
 * Created by omo on 4/9/15.
 */
 public class PlaySign implements ViewRenderer {
     @Override
-    public void draw(View view, Canvas canvas) {
-        RectF container = Signs.getContainerBox(view);
+    public void draw(ViewRenderingContext context, Canvas canvas) {
+        RectF container = context.getContainerBox();
         RectF bound = Signs.getCenterBoundingBox(container);
 
         Path path = new Path();
@@ -22,6 +23,6 @@ public class PlaySign implements ViewRenderer {
         path.lineTo(bound.left, bound.bottom);
         path.close();
 
-        canvas.drawPath(path, Signs.getSignPaint());
+        canvas.drawPath(path, context.getPaint());
     }
 }

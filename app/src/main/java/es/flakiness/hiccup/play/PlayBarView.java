@@ -9,6 +9,8 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 
+import es.flakiness.hiccup.R;
+
 public class PlayBarView extends View {
 
     private float progress;
@@ -36,9 +38,9 @@ public class PlayBarView extends View {
 
     private void initialize() {
         // FIXME: These colors should be resources
-        barBackgroundPaint.setColor(0xff222266);
+        barBackgroundPaint.setColor(getResources().getColor(R.color.app_accent));
         barBackgroundPaint.setStyle(Paint.Style.FILL);
-        barForegroundPaint.setColor(0xffeeeebb);
+        barForegroundPaint.setColor(getResources().getColor(R.color.app_primary_darken));
         barForegroundPaint.setStyle(Paint.Style.FILL);
     }
 

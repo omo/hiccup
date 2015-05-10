@@ -21,10 +21,11 @@ public class PlayGestureView extends View implements GestureDetector.OnGestureLi
     private PublishSubject<GestureEvent> gestureSubject = PublishSubject.create();
     private ViewRenderer renderer = new ViewRenderer() {
         @Override
-        public void draw(View view, Canvas canvas) {
+        public void draw(ViewRenderingContext context, Canvas canvas) {
             // Do nothing by default.
         }
     };
+    private ViewRenderingContext viewRenderingContext;
 
     public PlayGestureView(Context context) {
         this(context, null);
@@ -47,6 +48,7 @@ public class PlayGestureView extends View implements GestureDetector.OnGestureLi
 
     private void initialize() {
         detector = new GestureDetector(getContext(), this);
+        viewRenderingContext = new ViewRenderingContext(this);
     }
 
     @Override
@@ -111,7 +113,7 @@ public class PlayGestureView extends View implements GestureDetector.OnGestureLi
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        renderer.draw(this, canvas);
+        renderer.draw(viewRenderingContext, canvas);
     }
 
     private void onRelease(MotionEvent event) {

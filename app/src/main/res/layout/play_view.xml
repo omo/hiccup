@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/play_view_layout"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:background="#dddddd"
+    android:background="@color/app_primary_dark"
     android:layout_height="match_parent">
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,14 +13,13 @@
             android:id="@+id/play_view_bar"
             android:background="#ffffff"
             android:layout_margin="0dp"
-            android:paddingBottom="1dp"
             android:layout_width="match_parent"
-            android:layout_height="5dp" />
+            android:layout_height="10dp" />
         <TextView
             android:id="@+id/play_view_clock"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="#333333"
+            android:textColor="@color/app_primary"
             android:textSize="60dp"
             android:gravity="center"
             android:text="XX:YY" />
@@ -29,5 +28,5 @@
         android:id="@+id/play_view_gesture"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#00000000"/>
+        android:background="@android:color/transparent"/>
 </FrameLayout>

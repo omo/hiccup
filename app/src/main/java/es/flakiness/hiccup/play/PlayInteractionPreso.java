@@ -108,7 +108,7 @@ public class PlayInteractionPreso implements Subscription {
                     default:
                         updateSign(new ViewRenderer() {
                             @Override
-                            public void draw(View view, Canvas canvas) {
+                            public void draw(ViewRenderingContext context, Canvas canvas) {
                                 // empty.
                             }
                         });
