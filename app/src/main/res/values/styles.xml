@@ -3,7 +3,7 @@
 
     <!-- Base application theme. -->
     <!-- https://android.googlesource.com/platform/frameworks/support/+/34bea73/appcompat/res/values/themes.xml -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="MyTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/app_primary</item>
         <item name="colorPrimaryDark">@color/app_primary_dark</item>
         <item name="colorAccent">@color/app_accent</item>
@@ -11,6 +11,8 @@
         <item name="android:listViewStyle">@style/AppListViewStyle</item>
         <item name="android:actionModeStyle">@style/AppActionModeStyle</item>
         <item name="actionModeStyle">@style/AppActionModeStyle</item>
+        <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar.Solid</item>
+        <item name="windowActionBar">false</item>
     </style>
 
     <style name="AppListViewStyle">

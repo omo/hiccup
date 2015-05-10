@@ -3,9 +3,7 @@ package es.flakiness.hiccup.index;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v7.app.AppCompatActivity;
 
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -15,14 +13,14 @@ import javax.inject.Inject;
 import dagger.ObjectGraph;
 import es.flakiness.hiccup.InjectionScope;
 import es.flakiness.hiccup.Injections;
-import es.flakiness.hiccup.talk.AddTalkEvent;
-import es.flakiness.hiccup.talk.PlayTalkEvent;
 import es.flakiness.hiccup.R;
 import es.flakiness.hiccup.play.PlayActivity;
+import es.flakiness.hiccup.talk.AddTalkEvent;
+import es.flakiness.hiccup.talk.PlayTalkEvent;
 import es.flakiness.hiccup.talk.TalkStore;
 
 
-public class IndexActivity extends ActionBarActivity implements InjectionScope {
+public class IndexActivity extends AppCompatActivity implements InjectionScope {
 
     private ObjectGraph graph;
 
